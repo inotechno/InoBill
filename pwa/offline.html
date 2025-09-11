@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - InoBill</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .offline-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #0174BE;
+        }
+
+        .offline-title {
+            font-size: 2rem;
+            color: #0C356A;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .offline-message {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .offline-features {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .offline-features h3 {
+            color: #0174BE;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .offline-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .offline-features li {
+            padding: 8px 0;
+            color: #555;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .offline-features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .retry-button {
+            background: #0174BE;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(1, 116, 190, 0.2);
+        }
+
+        .retry-button:hover {
+            background: #0C356A;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(1, 116, 190, 0.3);
+        }
+
+        .retry-button:active {
+            transform: translateY(0);
+        }
+
+        .connection-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .connection-status.online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .connection-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .offline-container {
+                padding: 30px 20px;
+            }
+            
+            .offline-title {
+                font-size: 1.5rem;
+            }
+            
+            .offline-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📱</div>
+        <h1 class="offline-title">Anda Sedang Offline</h1>
+        <p class="offline-message">
+            Maaf, InoBill membutuhkan koneksi internet untuk berfungsi dengan baik. 
+            Pastikan Anda terhubung ke internet dan coba lagi.
+        </p>
+        
+        <div class="offline-features">
+            <h3>Fitur yang Tersedia Offline</h3>
+            <ul>
+                <li>Lihat hasil perhitungan terakhir</li>
+                <li>Akses menu dan data yang sudah di-cache</li>
+                <li>Gunakan kalkulator dasar</li>
+                <li>Lihat riwayat perhitungan</li>
+            </ul>
+        </div>
+
+        <button class="retry-button" onclick="retryConnection()">
+            🔄 Coba Lagi
+        </button>
+
+        <div class="connection-status offline" id="connectionStatus">
+            Status: Offline
+        </div>
+    </div>
+
+    <script>
+        // Connection status monitoring
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            
+            if (navigator.onLine) {
+                statusElement.textContent = 'Status: Online';
+                statusElement.className = 'connection-status online';
+                
+                // Auto redirect to main app when online
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusElement.textContent = 'Status: Offline';
+                statusElement.className = 'connection-status offline';
+            }
+        }
+
+        // Retry connection
+        function retryConnection() {
+            if (navigator.onLine) {
+                window.location.href = '/';
+            } else {
+                // Show loading state
+                const button = document.querySelector('.retry-button');
+                const originalText = button.textContent;
+                button.textContent = '🔄 Mencoba...';
+                button.disabled = true;
+                
+                // Simulate retry attempt
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                    updateConnectionStatus();
+                }, 2000);
+            }
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Initial status check
+        updateConnectionStatus();
+
+        // Service Worker registration check
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(registration => {
+                console.log('Service Worker ready for offline page');
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                retryConnection();
+            }
+        });
+    </script>
+</body>
+</html>

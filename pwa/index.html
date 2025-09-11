@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>InoBill - Split Bill Calculator PWA | InoTechno</title>
+    <meta name="title" content="InoBill - Split Bill Calculator PWA | InoTechno">
+    <meta name="description" content="Progressive Web App pembagi tagihan yang adil untuk restoran, cafe, dan makan bersama. Hitung pembagian biaya makanan, parkir, PPN, dan diskon dengan mudah. Bisa diinstall dan digunakan offline. Dibuat oleh InoTechno.">
+    <meta name="keywords" content="InoBill, PWA, split bill, pembagi tagihan, kalkulator tagihan, pembagian biaya, restoran, cafe, makan bersama, hitung tagihan, pembagian adil, InoTechno, aplikasi web, gratis, mudah digunakan, perhitungan adil, offline">
+    <meta name="author" content="InoTechno">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="language" content="Indonesian">
+    <meta name="geo.region" content="ID">
+    <meta name="geo.country" content="Indonesia">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    <meta name="revisit-after" content="7 days">
+    <meta name="expires" content="never">
+    <meta name="copyright" content="InoTechno">
+    <meta name="designer" content="InoTechno">
+    <meta name="publisher" content="InoTechno">
+    <meta name="category" content="Finance, Calculator, Web Application, PWA">
+    <meta name="coverage" content="Worldwide">
+    <meta name="target" content="all">
+    <meta name="audience" content="all">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="InoBill">
+    <meta name="msapplication-tooltip" content="InoBill - Split Bill Calculator PWA">
+    <meta name="msapplication-starturl" content="/">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="InoBill">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://inobill.inotechno.com/pwa/">
+    <meta property="og:title" content="InoBill - Split Bill Calculator PWA | InoTechno">
+    <meta property="og:description" content="Progressive Web App pembagi tagihan yang adil untuk restoran, cafe, dan makan bersama. Hitung pembagian biaya makanan, parkir, PPN, dan diskon dengan mudah. Bisa diinstall dan digunakan offline. Dibuat oleh InoTechno.">
+    <meta property="og:image" content="https://inobill.inotechno.com/pwa/icons/icon-512x512.png">
+    <meta property="og:site_name" content="InoBill PWA by InoTechno">
+    <meta property="og:locale" content="id_ID">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://inobill.inotechno.com/pwa/">
+    <meta property="twitter:title" content="InoBill - Split Bill Calculator PWA | InoTechno">
+    <meta property="twitter:description" content="Progressive Web App pembagi tagihan yang adil untuk restoran, cafe, dan makan bersama. Hitung pembagian biaya makanan, parkir, PPN, dan diskon dengan mudah. Bisa diinstall dan digunakan offline. Dibuat oleh InoTechno.">
+    <meta property="twitter:image" content="https://inobill.inotechno.com/pwa/icons/icon-512x512.png">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#0174BE">
+    <meta name="msapplication-TileColor" content="#0174BE">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://inobill.inotechno.com/pwa/">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="shortcut icon" href="icons/icon-192x192.png">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "InoBill PWA by InoTechno",
+        "description": "Progressive Web App pembagi tagihan yang adil untuk restoran, cafe, dan makan bersama. Hitung pembagian biaya makanan, parkir, PPN, dan diskon dengan mudah. Bisa diinstall dan digunakan offline.",
+        "url": "https://inobill.inotechno.com/pwa/",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser, Mobile, Desktop",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "IDR"
+        },
+        "featureList": [
+            "Pembagian tagihan yang adil",
+            "Perhitungan real-time",
+            "Offline functionality",
+            "Installable PWA",
+            "Responsive design",
+            "Multi-platform support"
+        ],
+        "author": {
+            "@type": "Organization",
+            "name": "InoTechno"
+        },
+        "inLanguage": "id",
+        "isAccessibleForFree": true,
+        "datePublished": "2024-01-01",
+        "dateModified": "2024-12-11",
+        "version": "1.0.0",
+        "softwareVersion": "1.0.0",
+        "browserRequirements": "Requires JavaScript. Requires HTML5. PWA compatible.",
+        "memoryRequirements": "No specific memory requirements",
+        "storageRequirements": "Minimal storage for offline cache",
+        "permissions": "No special permissions required",
+        "screenshot": "https://inobill.inotechno.com/pwa/screenshots/desktop-screenshot.png",
+        "softwareHelp": "https://inobill.inotechno.com/pwa/help",
+        "releaseNotes": "Initial release of InoBill PWA - A fair and easy split bill calculator with offline support"
+    }
+    </script>
+    
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "InoTechno",
+        "url": "https://inotechno.com",
+        "logo": "https://inotechno.com/logo.png",
+        "description": "InoTechno - Technology solutions and web applications",
+        "foundingDate": "2024",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "info@inotechno.com",
+            "contactType": "customer service"
+        },
+        "sameAs": [
+            "https://inotechno.com"
+        ]
+    }
+    </script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="pwa-install-banner" style="display: none;">
+        <div class="pwa-banner-content">
+            <div class="pwa-banner-icon">📱</div>
+            <div class="pwa-banner-text">
+                <h3>Install InoBill</h3>
+                <p>Install aplikasi untuk akses yang lebih mudah dan fitur offline</p>
+            </div>
+            <div class="pwa-banner-actions">
+                <button id="pwa-install-btn" class="btn btn-primary">Install</button>
+                <button id="pwa-dismiss-btn" class="btn btn-secondary">Nanti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Available Banner -->
+    <div id="pwa-update-banner" class="pwa-update-banner" style="display: none;">
+        <div class="pwa-banner-content">
+            <div class="pwa-banner-icon">🔄</div>
+            <div class="pwa-banner-text">
+                <h3>Update Tersedia</h3>
+                <p>Versi baru InoBill tersedia. Update untuk fitur terbaru.</p>
+            </div>
+            <div class="pwa-banner-actions">
+                <button id="pwa-update-btn" class="btn btn-primary">Update</button>
+                <button id="pwa-update-dismiss-btn" class="btn btn-secondary">Nanti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div id="offline-indicator" class="offline-indicator" style="display: none;">
+        <div class="offline-content">
+            <span class="offline-icon">📡</span>
+            <span class="offline-text">Anda sedang offline</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>🍽️ InoBill PWA</h1>
+            <p>Hitung pembagian tagihan yang adil untuk setiap peserta</p>
+            <div class="pwa-badges">
+                <span class="pwa-badge">📱 PWA</span>
+                <span class="pwa-badge">⚡ Offline</span>
+                <span class="pwa-badge">🚀 Installable</span>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- Two Column Layout for most sections -->
+            <div class="sections-grid">
+                <!-- Participants Section -->
+                <section class="section">
+                    <h2>👥 Peserta</h2>
+                    <div class="input-group">
+                        <input type="text" id="participantName" placeholder="Nama peserta" maxlength="50">
+                        <button onclick="addParticipant()" class="btn">Tambah</button>
+                    </div>
+                    <div id="participantsList" class="participants-list"></div>
+                </section>
+
+                <!-- Menu Section -->
+                <section class="section">
+                    <h2>🍽️ Menu & Harga</h2>
+                    <div class="input-group">
+                        <input type="text" id="menuName" placeholder="Nama menu" maxlength="100">
+                        <input type="number" id="menuPrice" placeholder="Harga" min="0" step="100">
+                        <button onclick="addMenuItem()" class="btn">Tambah</button>
+                    </div>
+                    <div id="menuList" class="menu-list"></div>
+                </section>
+
+                <!-- Additional Costs Section -->
+                <section class="section">
+                    <h2>💰 Biaya Tambahan</h2>
+                    <div class="input-group">
+                        <input type="text" id="additionalCostName" placeholder="Nama biaya" maxlength="100">
+                        <input type="number" id="additionalCostAmount" placeholder="Jumlah" min="0" step="100">
+                        <select id="additionalCostType">
+                            <option value="fixed">Tetap (Rp)</option>
+                            <option value="percentage">Persentase (%)</option>
+                        </select>
+                        <button onclick="addAdditionalCost()" class="btn">Tambah Biaya</button>
+                    </div>
+                    <div id="additionalCostsList" class="additional-costs"></div>
+                </section>
+
+                <!-- Discount Section -->
+                <section class="section">
+                    <h2>🎯 Diskon</h2>
+                    <div class="discount-fields">
+                        <div class="input-group">
+                            <label for="discountAmount">Diskon (Rp)</label>
+                            <input type="number" id="discountAmount" placeholder="0" min="0" step="100">
+                        </div>
+                        <div class="input-group">
+                            <label for="discountPercentage">Diskon (%)</label>
+                            <input type="number" id="discountPercentage" placeholder="0" min="0" max="100" step="0.1">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <select id="discountType">
+                            <option value="menu">Setelah Menu</option>
+                            <option value="total-bill">Dari Total Semua</option>
+                        </select>
+                    </div>
+                    <div id="discountInfo" class="info-message" style="display: none;"></div>
+                </section>
+            </div>
+
+            <!-- Orders Section (Full Width) -->
+            <section class="section full-width">
+                <h2>📋 Pesanan</h2>
+                <div id="ordersList" class="orders-grid"></div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="section full-width">
+                <h2>📊 Hasil Perhitungan</h2>
+                <div id="results" class="results"></div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 <strong>InoTechno</strong>. All rights reserved.</p>
+            <p>InoBill PWA - Pembagi Tagihan Adil & Mudah</p>
+            <div class="footer-links">
+                <a href="https://inotechno.com" target="_blank" rel="noopener">InoTechno</a>
+                <span>•</span>
+                <a href="mailto:info@inotechno.com">Contact</a>
+                <span>•</span>
+                <a href="#" id="pwa-install-link">Install App</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="pwa.js"></script>
+</body>
+</html>
