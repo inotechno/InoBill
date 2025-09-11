@@ -219,10 +219,16 @@
                     <div class="input-group">
                         <input type="text" id="additionalCostName" placeholder="Nama biaya" maxlength="100">
                         <input type="number" id="additionalCostAmount" placeholder="Jumlah" min="0" step="100">
-                        <select id="additionalCostType">
-                            <option value="fixed">Tetap (Rp)</option>
-                            <option value="percentage">Persentase (%)</option>
-                        </select>
+                        <div class="custom-select">
+                            <div class="select-trigger" onclick="toggleSelect('additionalCostType')">
+                                <span class="select-value" id="additionalCostTypeValue">Tetap (Rp)</span>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                            <div class="select-options" id="additionalCostTypeOptions">
+                                <div class="select-option" data-value="fixed" onclick="selectOption('additionalCostType', 'fixed', 'Tetap (Rp)')">Tetap (Rp)</div>
+                                <div class="select-option" data-value="percentage" onclick="selectOption('additionalCostType', 'percentage', 'Persentase (%)')">Persentase (%)</div>
+                            </div>
+                        </div>
                         <button onclick="addAdditionalCost()" class="btn">Tambah Biaya</button>
                     </div>
                     <div id="additionalCostsList" class="additional-costs"></div>
@@ -242,10 +248,16 @@
                         </div>
                     </div>
                     <div class="input-group">
-                        <select id="discountType">
-                            <option value="menu">Setelah Menu</option>
-                            <option value="total-bill">Dari Total Semua</option>
-                        </select>
+                        <div class="custom-select">
+                            <div class="select-trigger" onclick="toggleSelect('discountType')">
+                                <span class="select-value" id="discountTypeValue">Setelah Menu</span>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                            <div class="select-options" id="discountTypeOptions">
+                                <div class="select-option" data-value="menu" onclick="selectOption('discountType', 'menu', 'Setelah Menu')">Setelah Menu</div>
+                                <div class="select-option" data-value="total-bill" onclick="selectOption('discountType', 'total-bill', 'Dari Total Semua')">Dari Total Semua</div>
+                            </div>
+                        </div>
                     </div>
                     <div id="discountInfo" class="info-message" style="display: none;"></div>
                 </section>
@@ -279,6 +291,15 @@
         </div>
     </footer>
 
+    <!-- Floating Reset Button -->
+    <button id="floating-reset-btn" onclick="resetAllData()" class="floating-reset-btn" title="Reset semua data">
+        <span class="floating-btn-icon">🔄</span>
+        <span class="floating-btn-text">Reset</span>
+    </button>
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script src="script.js"></script>
     <script src="pwa.js"></script>
 </body>

@@ -18,6 +18,12 @@ function init() {
     // Set up event listeners
     setupEventListeners();
     
+    // Setup floating button
+    setupFloatingButton();
+    
+    // Setup modern selects
+    setupModernSelects();
+    
     // Initial render
     renderAll();
     
@@ -63,6 +69,107 @@ function saveData() {
     }
 }
 
+// Reset all data
+async function resetAllData() {
+    const result = await Swal.fire({
+        title: '🔄 Reset Semua Data',
+        html: `
+            <div style="text-align: left; margin: 20px 0;">
+                <p style="margin-bottom: 15px; font-size: 16px; color: #374151;">
+                    Apakah Anda yakin ingin mengosongkan semua data?
+                </p>
+                <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p style="margin: 0; font-weight: 600; color: #ef4444; margin-bottom: 10px;">Data yang akan dihapus:</p>
+                    <ul style="margin: 0; padding-left: 20px; color: #6b7280;">
+                        <li>Semua peserta</li>
+                        <li>Semua menu</li>
+                        <li>Semua biaya tambahan</li>
+                        <li>Semua pesanan</li>
+                        <li>Semua diskon</li>
+                    </ul>
+                </div>
+                <p style="margin: 0; font-size: 14px; color: #ef4444; font-weight: 600;">
+                    ⚠️ Tindakan ini tidak dapat dibatalkan!
+                </p>
+            </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Reset Semua',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        reverseButtons: true,
+        focusCancel: true,
+        customClass: {
+            popup: 'swal2-popup-custom',
+            title: 'swal2-title-custom',
+            htmlContainer: 'swal2-html-container-custom'
+        }
+    });
+
+    if (result.isConfirmed) {
+        // Show loading
+        Swal.fire({
+            title: 'Sedang mereset...',
+            text: 'Menghapus semua data...',
+            icon: 'info',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Simulate processing time
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Reset all global variables
+        participants = [];
+        menuItems = [];
+        additionalCosts = [];
+        orders = {};
+        discount = { amount: 0, percentage: 0, type: 'menu' };
+        
+        // Clear all input fields
+        document.getElementById('participantName').value = '';
+        document.getElementById('menuName').value = '';
+        document.getElementById('menuPrice').value = '';
+        document.getElementById('additionalCostName').value = '';
+        document.getElementById('additionalCostAmount').value = '';
+        document.getElementById('discountAmount').value = '';
+        document.getElementById('discountPercentage').value = '';
+        document.getElementById('discountType').value = 'menu';
+        
+        // Clear localStorage
+        try {
+            localStorage.removeItem('inobill_participants');
+            localStorage.removeItem('inobill_menuItems');
+            localStorage.removeItem('inobill_additionalCosts');
+            localStorage.removeItem('inobill_orders');
+            localStorage.removeItem('inobill_discount');
+            console.log('InoBill PWA: All data cleared from localStorage');
+        } catch (error) {
+            console.error('InoBill PWA: Error clearing localStorage', error);
+        }
+        
+        // Re-render everything
+        renderAll();
+        
+        // Show success message
+        await Swal.fire({
+            title: '✅ Berhasil!',
+            text: 'Semua data telah direset dengan sukses!',
+            icon: 'success',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        
+        console.log('InoBill PWA: All data reset successfully');
+    }
+}
+
 // Set up event listeners
 function setupEventListeners() {
     // Discount field toggling
@@ -84,6 +191,203 @@ function setupEventListeners() {
     
     // Before unload
     window.addEventListener('beforeunload', saveData);
+}
+
+// Setup floating button
+function setupFloatingButton() {
+    const floatingBtn = document.getElementById('floating-reset-btn');
+    
+    if (floatingBtn) {
+        // Add click animation
+        floatingBtn.addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+        
+        // Add hover effects
+        floatingBtn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px) scale(1.05)';
+        });
+        
+        floatingBtn.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+        
+        // Show/hide based on scroll position
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                // Scrolling down
+                floatingBtn.style.transform = 'translateY(100px)';
+                floatingBtn.style.opacity = '0.7';
+            } else {
+                // Scrolling up
+                floatingBtn.style.transform = '';
+                floatingBtn.style.opacity = '1';
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+        
+        console.log('InoBill PWA: Floating button setup complete');
+    }
+}
+
+// Setup modern select elements
+function setupModernSelects() {
+    // Setup custom selects
+    setupCustomSelects();
+    
+    // Setup regular selects (if any)
+    const selects = document.querySelectorAll('select');
+    selects.forEach(select => {
+        // Add change event listener
+        select.addEventListener('change', function() {
+            // Add visual feedback
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+    
+    console.log('InoBill PWA: Modern selects setup complete');
+}
+
+// Setup custom select elements
+function setupCustomSelects() {
+    const customSelects = document.querySelectorAll('.custom-select');
+    
+    customSelects.forEach(customSelect => {
+        const trigger = customSelect.querySelector('.select-trigger');
+        const options = customSelect.querySelector('.select-options');
+        
+        // Add hover effects
+        trigger.addEventListener('mouseenter', function() {
+            customSelect.classList.add('select-hovered');
+        });
+        
+        trigger.addEventListener('mouseleave', function() {
+            customSelect.classList.remove('select-hovered');
+        });
+        
+        // Add focus effects
+        trigger.addEventListener('focus', function() {
+            customSelect.classList.add('select-focused');
+        });
+        
+        trigger.addEventListener('blur', function() {
+            customSelect.classList.remove('select-focused');
+        });
+        
+        // Add keyboard support
+        trigger.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleSelect(customSelect.id || 'customSelect');
+            }
+        });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-select')) {
+            closeAllSelects();
+        }
+    });
+    
+    console.log('InoBill PWA: Custom selects setup complete');
+}
+
+// Toggle select dropdown
+function toggleSelect(selectId) {
+    const customSelect = document.getElementById(selectId) || document.querySelector(`[onclick*="${selectId}"]`).closest('.custom-select');
+    const trigger = customSelect.querySelector('.select-trigger');
+    const options = customSelect.querySelector('.select-options');
+    
+    // Close other dropdowns
+    closeAllSelects();
+    
+    // Toggle current dropdown
+    if (options.classList.contains('show')) {
+        options.classList.remove('show');
+        trigger.classList.remove('active');
+    } else {
+        options.classList.add('show');
+        trigger.classList.add('active');
+    }
+}
+
+// Select option
+function selectOption(selectId, value, text) {
+    const customSelect = document.getElementById(selectId) || document.querySelector(`[onclick*="${selectId}"]`).closest('.custom-select');
+    const trigger = customSelect.querySelector('.select-trigger');
+    const options = customSelect.querySelector('.select-options');
+    const valueSpan = customSelect.querySelector('.select-value');
+    const optionElements = customSelect.querySelectorAll('.select-option');
+    
+    // Update value display
+    valueSpan.textContent = text;
+    
+    // Update selected option
+    optionElements.forEach(option => {
+        option.classList.remove('selected');
+        if (option.dataset.value === value) {
+            option.classList.add('selected');
+        }
+    });
+    
+    // Close dropdown
+    options.classList.remove('show');
+    trigger.classList.remove('active');
+    
+    // Add visual feedback
+    trigger.style.transform = 'scale(0.98)';
+    setTimeout(() => {
+        trigger.style.transform = '';
+    }, 150);
+    
+    // Show notification for important changes
+    if (selectId === 'discountType') {
+        const message = value === 'menu' ? 
+            'Diskon akan diterapkan setelah menu' : 
+            'Diskon akan diterapkan dari total semua';
+        showNotification(message, 'info');
+    }
+    
+    if (selectId === 'additionalCostType') {
+        const message = value === 'fixed' ? 
+            'Biaya tambahan akan dihitung sebagai jumlah tetap' : 
+            'Biaya tambahan akan dihitung sebagai persentase';
+        showNotification(message, 'info');
+    }
+    
+    // Trigger change event for compatibility
+    const changeEvent = new Event('change', { bubbles: true });
+    customSelect.dispatchEvent(changeEvent);
+}
+
+// Close all select dropdowns
+function closeAllSelects() {
+    const customSelects = document.querySelectorAll('.custom-select');
+    customSelects.forEach(customSelect => {
+        const trigger = customSelect.querySelector('.select-trigger');
+        const options = customSelect.querySelector('.select-options');
+        
+        options.classList.remove('show');
+        trigger.classList.remove('active');
+    });
+}
+
+// Get custom select value
+function getCustomSelectValue(selectId) {
+    const customSelect = document.getElementById(selectId) || document.querySelector(`[onclick*="${selectId}"]`).closest('.custom-select');
+    const selectedOption = customSelect.querySelector('.select-option.selected');
+    return selectedOption ? selectedOption.dataset.value : null;
 }
 
 // Toggle discount fields (mutually exclusive)
@@ -125,7 +429,7 @@ function toggleDiscountFields() {
     // Update discount object
     discount.amount = amountValue;
     discount.percentage = percentageValue;
-    discount.type = document.getElementById('discountType').value;
+    discount.type = getCustomSelectValue('discountType') || 'menu';
     
     // Trigger calculation
     calculateSplit();
@@ -137,12 +441,14 @@ function addParticipant() {
     const name = nameInput.value.trim();
     
     if (!name) {
-        alert('Masukkan nama peserta');
+        showError('Error Input', 'Masukkan nama peserta');
+        nameInput.focus();
         return;
     }
     
     if (participants.includes(name)) {
-        alert('Peserta sudah ada');
+        showError('Error Input', 'Peserta sudah ada');
+        nameInput.focus();
         return;
     }
     
@@ -154,11 +460,20 @@ function addParticipant() {
     renderOrders();
     calculateSplit();
     saveData();
+    
+    showNotification(`${name} berhasil ditambahkan sebagai peserta`, 'success');
 }
 
 // Remove participant
-function removeParticipant(name) {
-    if (confirm(`Hapus peserta "${name}"?`)) {
+async function removeParticipant(name) {
+    const confirmed = await showConfirmation(
+        'Hapus Peserta',
+        `Apakah Anda yakin ingin menghapus "${name}"?`,
+        'Ya, Hapus',
+        'Batal'
+    );
+    
+    if (confirmed) {
         participants = participants.filter(p => p !== name);
         delete orders[name];
         
@@ -166,6 +481,8 @@ function removeParticipant(name) {
         renderOrders();
         calculateSplit();
         saveData();
+        
+        showNotification(`${name} telah dihapus`, 'success');
     }
 }
 
@@ -178,12 +495,14 @@ function addMenuItem() {
     const price = parseFloat(priceInput.value) || 0;
     
     if (!name) {
-        alert('Masukkan nama menu');
+        showError('Error Input', 'Masukkan nama menu');
+        nameInput.focus();
         return;
     }
     
     if (price <= 0) {
-        alert('Masukkan harga yang valid');
+        showError('Error Input', 'Masukkan harga yang valid');
+        priceInput.focus();
         return;
     }
     
@@ -195,11 +514,21 @@ function addMenuItem() {
     renderOrders();
     calculateSplit();
     saveData();
+    
+    showNotification(`Menu "${name}" berhasil ditambahkan`, 'success');
 }
 
 // Remove menu item
-function removeMenuItem(index) {
-    if (confirm('Hapus menu ini?')) {
+async function removeMenuItem(index) {
+    const menuName = menuItems[index]?.name || 'menu ini';
+    const confirmed = await showConfirmation(
+        'Hapus Menu',
+        `Apakah Anda yakin ingin menghapus "${menuName}"?`,
+        'Ya, Hapus',
+        'Batal'
+    );
+    
+    if (confirmed) {
         menuItems.splice(index, 1);
         
         // Remove from all orders
@@ -211,6 +540,8 @@ function removeMenuItem(index) {
         renderOrders();
         calculateSplit();
         saveData();
+        
+        showNotification(`Menu "${menuName}" telah dihapus`, 'success');
     }
 }
 
@@ -218,19 +549,21 @@ function removeMenuItem(index) {
 function addAdditionalCost() {
     const nameInput = document.getElementById('additionalCostName');
     const amountInput = document.getElementById('additionalCostAmount');
-    const typeSelect = document.getElementById('additionalCostType');
+    const typeValue = getCustomSelectValue('additionalCostType');
     
     const name = nameInput.value.trim();
     const amount = parseFloat(amountInput.value) || 0;
-    const type = typeSelect.value;
+    const type = typeValue || 'fixed';
     
     if (!name) {
-        alert('Masukkan nama biaya tambahan');
+        showError('Error Input', 'Masukkan nama biaya tambahan');
+        nameInput.focus();
         return;
     }
     
     if (amount <= 0) {
-        alert('Masukkan jumlah yang valid');
+        showError('Error Input', 'Masukkan jumlah yang valid');
+        amountInput.focus();
         return;
     }
     
@@ -241,15 +574,27 @@ function addAdditionalCost() {
     renderAdditionalCosts();
     calculateSplit();
     saveData();
+    
+    showNotification(`Biaya tambahan "${name}" berhasil ditambahkan`, 'success');
 }
 
 // Remove additional cost
-function removeAdditionalCost(index) {
-    if (confirm('Hapus biaya tambahan ini?')) {
+async function removeAdditionalCost(index) {
+    const costName = additionalCosts[index]?.name || 'biaya tambahan ini';
+    const confirmed = await showConfirmation(
+        'Hapus Biaya Tambahan',
+        `Apakah Anda yakin ingin menghapus "${costName}"?`,
+        'Ya, Hapus',
+        'Batal'
+    );
+    
+    if (confirmed) {
         additionalCosts.splice(index, 1);
         renderAdditionalCosts();
         calculateSplit();
         saveData();
+        
+        showNotification(`Biaya tambahan "${costName}" telah dihapus`, 'success');
     }
 }
 
@@ -606,6 +951,121 @@ window.removeAdditionalCost = removeAdditionalCost;
 window.toggleOrder = toggleOrder;
 window.updateOrderQuantity = updateOrderQuantity;
 window.toggleDiscountFields = toggleDiscountFields;
+window.resetAllData = resetAllData;
+window.toggleSelect = toggleSelect;
+window.selectOption = selectOption;
+window.getCustomSelectValue = getCustomSelectValue;
+
+// Show notification using SweetAlert2 Toast
+function showNotification(message, type = 'info') {
+    const toastConfig = {
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+        }
+    };
+
+    switch (type) {
+        case 'success':
+            Swal.fire({
+                ...toastConfig,
+                icon: 'success',
+                title: 'Berhasil!',
+                text: message
+            });
+            break;
+        case 'error':
+            Swal.fire({
+                ...toastConfig,
+                icon: 'error',
+                title: 'Error!',
+                text: message
+            });
+            break;
+        case 'warning':
+            Swal.fire({
+                ...toastConfig,
+                icon: 'warning',
+                title: 'Peringatan!',
+                text: message
+            });
+            break;
+        case 'info':
+        default:
+            Swal.fire({
+                ...toastConfig,
+                icon: 'info',
+                title: 'Info',
+                text: message
+            });
+            break;
+    }
+}
+
+// Show confirmation dialog using SweetAlert2
+async function showConfirmation(title, text, confirmText = 'Ya', cancelText = 'Batal') {
+    const result = await Swal.fire({
+        title: title,
+        text: text,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: confirmText,
+        cancelButtonText: cancelText,
+        confirmButtonColor: '#0174BE',
+        cancelButtonColor: '#6b7280',
+        reverseButtons: true,
+        focusCancel: true
+    });
+    
+    return result.isConfirmed;
+}
+
+// Show success message using SweetAlert2
+async function showSuccess(title, text, timer = 2000) {
+    await Swal.fire({
+        title: title,
+        text: text,
+        icon: 'success',
+        timer: timer,
+        timerProgressBar: true,
+        showConfirmButton: false
+    });
+}
+
+// Show error message using SweetAlert2
+async function showError(title, text) {
+    await Swal.fire({
+        title: title,
+        text: text,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#ef4444'
+    });
+}
+
+// Show loading using SweetAlert2
+function showLoading(title = 'Memproses...', text = 'Mohon tunggu sebentar') {
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: 'info',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+}
+
+// Hide loading
+function hideLoading() {
+    Swal.close();
+}
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', init);

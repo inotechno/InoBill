@@ -37,8 +37,8 @@ body {
 .header {
     background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
     color: white;
-    padding: 40px 30px;
     text-align: center;
+    padding: 40px 30px;
     position: relative;
     overflow: hidden;
 }
@@ -166,6 +166,25 @@ body {
     transition: all 0.3s ease;
     background: white;
     box-sizing: border-box;
+    height: 48px;
+    min-height: 48px;
+}
+
+.input-group .premium-select {
+    flex: 1;
+    min-width: 120px;
+}
+
+.input-group .premium-select select {
+    padding: 12px 40px 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: white;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .input-group input:focus,
@@ -173,6 +192,717 @@ body {
     outline: none;
     border-color: #0174BE;
     box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1);
+}
+
+.input-group .premium-select select:focus {
+    outline: none;
+    border-color: #0174BE;
+    box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1);
+}
+
+.input-group .premium-select select:hover {
+    border-color: #0174BE;
+    background: #f8fafc;
+}
+
+.input-group .premium-select::after {
+    right: 12px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #6b7280;
+}
+
+/* Modern Select Styling */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+    cursor: pointer;
+    position: relative;
+}
+
+select:hover {
+    border-color: #0174BE;
+    background-color: #f8fafc;
+}
+
+select:focus {
+    border-color: #0174BE;
+    box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1);
+    background-color: white;
+}
+
+select option {
+    padding: 12px 16px;
+    background: white;
+    color: #374151;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    margin: 2px 0;
+    transition: all 0.2s ease;
+}
+
+select option:hover {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #0174BE;
+    font-weight: 600;
+    transform: translateX(4px);
+}
+
+select option:checked {
+    background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(1, 116, 190, 0.3);
+}
+
+select option:focus {
+    background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
+    color: white;
+    font-weight: 600;
+    outline: none;
+}
+
+/* Premium Select Options */
+.premium-select select option {
+    padding: 14px 18px;
+    background: white;
+    color: #374151;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    margin: 3px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.premium-select select option:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    color: #0174BE;
+    font-weight: 600;
+    transform: translateX(6px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(1, 116, 190, 0.15);
+}
+
+.premium-select select option:checked {
+    background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(1, 116, 190, 0.3);
+    transform: scale(1.05);
+}
+
+.premium-select select option:focus {
+    background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
+    color: white;
+    font-weight: 600;
+    outline: none;
+    box-shadow: 0 4px 12px rgba(1, 116, 190, 0.3);
+}
+
+/* Animated Select Options */
+.animated-select select option {
+    padding: 12px 16px;
+    background: white;
+    color: #374151;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    margin: 2px 0;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.animated-select select option:hover {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #0174BE;
+    font-weight: 600;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(1, 116, 190, 0.1);
+}
+
+.animated-select select option:checked {
+    background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(1, 116, 190, 0.3);
+    transform: scale(1.02);
+}
+
+.animated-select select option:focus {
+    background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
+    color: white;
+    font-weight: 600;
+    outline: none;
+}
+
+/* Glass Select Options */
+.glass-select select option {
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    color: #374151;
+    font-size: 16px;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    margin: 3px 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.glass-select select option:hover {
+    background: rgba(248, 250, 252, 0.95);
+    color: #0174BE;
+    font-weight: 600;
+    transform: translateX(6px) scale(1.02);
+    box-shadow: 0 4px 16px rgba(1, 116, 190, 0.15);
+    border-color: rgba(1, 116, 190, 0.3);
+}
+
+.glass-select select option:checked {
+    background: linear-gradient(135deg, rgba(1, 116, 190, 0.9) 0%, rgba(12, 53, 106, 0.9) 100%);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(1, 116, 190, 0.3);
+    transform: scale(1.05);
+    border-color: rgba(1, 116, 190, 0.5);
+}
+
+.glass-select select option:focus {
+    background: linear-gradient(135deg, rgba(1, 116, 190, 0.9) 0%, rgba(12, 53, 106, 0.9) 100%);
+    color: white;
+    font-weight: 600;
+    outline: none;
+    box-shadow: 0 4px 16px rgba(1, 116, 190, 0.3);
+}
+
+/* Premium Select Styling */
+.premium-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.premium-select select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 40px 12px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.premium-select select:hover {
+    border-color: #0174BE;
+    background: #f8fafc;
+    box-shadow: 0 2px 8px rgba(1, 116, 190, 0.15);
+}
+
+.premium-select select:focus {
+    outline: none;
+    border-color: #0174BE;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1);
+}
+
+.premium-select::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #6b7280;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.premium-select:hover::after {
+    border-top-color: #0174BE;
+}
+
+.premium-select select:focus + .premium-select::after {
+    border-top-color: #0174BE;
+}
+
+/* Animated Select */
+.animated-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.animated-select select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 50px 14px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.animated-select select:hover {
+    border-color: #0174BE;
+    background: #f8fafc;
+    box-shadow: 0 4px 12px rgba(1, 116, 190, 0.1);
+    transform: translateY(-1px);
+}
+
+.animated-select select:focus {
+    outline: none;
+    border-color: #0174BE;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1), 0 4px 12px rgba(1, 116, 190, 0.15);
+    transform: translateY(-1px);
+}
+
+.animated-select::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #6b7280;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.animated-select:hover::after {
+    border-top-color: #0174BE;
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.animated-select select:focus + .animated-select::after {
+    border-top-color: #0174BE;
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* Glassmorphism Select */
+.glass-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.glass-select select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 16px 50px 16px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-select select:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(1, 116, 190, 0.3);
+    box-shadow: 0 12px 40px rgba(1, 116, 190, 0.15);
+    transform: translateY(-2px);
+}
+
+.glass-select select:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.98);
+    border-color: #0174BE;
+    box-shadow: 0 0 0 4px rgba(1, 116, 190, 0.1), 0 12px 40px rgba(1, 116, 190, 0.2);
+    transform: translateY(-2px);
+}
+
+.glass-select::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #6b7280;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.glass-select:hover::after {
+    border-top-color: #0174BE;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.glass-select select:focus + .glass-select::after {
+    border-top-color: #0174BE;
+}
+
+/* Custom Select Styling */
+.custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    flex: 1;
+    min-width: 120px;
+}
+
+.select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    box-sizing: border-box;
+    width: 100%;
+    height: 48px;
+    min-height: 48px;
+}
+
+.select-trigger:hover {
+    border-color: #0174BE;
+    background: #f8fafc;
+    box-shadow: 0 2px 8px rgba(1, 116, 190, 0.15);
+}
+
+.select-trigger:focus {
+    outline: none;
+    border-color: #0174BE;
+    box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1);
+}
+
+.select-trigger.active {
+    border-color: #0174BE;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1);
+}
+
+.select-value {
+    flex: 1;
+    text-align: left;
+}
+
+.select-arrow {
+    font-size: 12px;
+    color: #6b7280;
+    transition: transform 0.3s ease;
+    margin-left: 8px;
+}
+
+.select-trigger.active .select-arrow {
+    transform: rotate(180deg);
+    color: #0174BE;
+}
+
+.select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    animation: slideDown 0.3s ease;
+}
+
+.select-options.show {
+    display: block;
+}
+
+.select-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.select-option:last-child {
+    border-bottom: none;
+}
+
+.select-option:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    color: #0174BE;
+    font-weight: 600;
+    transform: translateX(4px);
+}
+
+.select-option.selected {
+    background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(1, 116, 190, 0.3);
+}
+
+.select-option:active {
+    transform: scale(0.98);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Select States */
+.custom-select.select-focused .select-trigger {
+    border-color: #0174BE;
+    box-shadow: 0 0 0 3px rgba(1, 116, 190, 0.1);
+}
+
+.custom-select.select-hovered .select-trigger {
+    border-color: #0174BE;
+    background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(1, 116, 190, 0.15);
+}
+
+/* Select State Classes */
+.select-focused {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+}
+
+.select-hovered {
+    transform: translateY(-1px);
+    transition: transform 0.3s ease;
+}
+
+.select-focused .premium-select select,
+.select-focused .animated-select select,
+.select-focused .glass-select select {
+    box-shadow: 0 0 0 4px rgba(1, 116, 190, 0.1), 0 8px 25px rgba(1, 116, 190, 0.2);
+}
+
+.select-hovered .premium-select select,
+.select-hovered .animated-select select,
+.select-hovered .glass-select select {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(1, 116, 190, 0.15);
+}
+
+/* Responsive Select Design */
+@media (max-width: 768px) {
+    .premium-select select {
+        padding: 12px 35px 12px 14px;
+        font-size: 16px;
+        border-radius: 8px;
+        height: 46px;
+        min-height: 46px;
+    }
+    
+    .premium-select::after {
+        right: 12px;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #6b7280;
+    }
+    
+    .animated-select select {
+        padding: 12px 35px 12px 14px;
+        font-size: 16px;
+        height: 46px;
+        min-height: 46px;
+    }
+    
+    .animated-select::after {
+        right: 12px;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #6b7280;
+    }
+    
+    .glass-select select {
+        padding: 12px 35px 12px 14px;
+        font-size: 16px;
+        height: 46px;
+        min-height: 46px;
+    }
+    
+    .glass-select::after {
+        right: 12px;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #6b7280;
+    }
+    
+    /* Input and Button Tablet */
+    .input-group input,
+    .input-group select {
+        height: 46px;
+        min-height: 46px;
+    }
+    
+    .btn {
+        height: 46px;
+        min-height: 46px;
+    }
+    
+    /* Custom Select Tablet */
+    .custom-select .select-trigger {
+        height: 46px;
+        min-height: 46px;
+    }
+}
+
+@media (max-width: 480px) {
+    .premium-select select {
+        padding: 10px 30px 10px 12px;
+        font-size: 16px;
+        border-radius: 6px;
+    }
+    
+    .premium-select::after {
+        right: 10px;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #6b7280;
+    }
+    
+    .premium-select select option {
+        padding: 12px 14px;
+        font-size: 16px;
+        border-radius: 4px;
+        margin: 2px 0;
+    }
+    
+    .premium-select select option:hover {
+        transform: translateX(4px) scale(1.01);
+    }
+    
+    .animated-select select {
+        padding: 10px 30px 10px 12px;
+        font-size: 16px;
+    }
+    
+    .animated-select::after {
+        right: 10px;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #6b7280;
+    }
+    
+    .animated-select select option {
+        padding: 10px 12px;
+        font-size: 16px;
+        border-radius: 3px;
+        margin: 1px 0;
+    }
+    
+    .animated-select select option:hover {
+        transform: translateX(3px);
+    }
+    
+    .glass-select select {
+        padding: 10px 30px 10px 12px;
+        font-size: 16px;
+    }
+    
+    .glass-select::after {
+        right: 10px;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #6b7280;
+    }
+    
+    .glass-select select option {
+        padding: 12px 14px;
+        font-size: 16px;
+        border-radius: 6px;
+        margin: 2px 0;
+    }
+    
+    .glass-select select option:hover {
+        transform: translateX(4px) scale(1.01);
+    }
+    
+    /* Custom Select Mobile */
+    .custom-select .select-trigger {
+        padding: 10px 12px;
+        font-size: 16px;
+        border-radius: 6px;
+        height: 44px;
+        min-height: 44px;
+    }
+    
+    .custom-select .select-option {
+        padding: 10px 12px;
+        font-size: 16px;
+    }
+    
+    .custom-select .select-option:hover {
+        transform: translateX(3px);
+    }
+    
+    /* Input and Button Mobile */
+    .input-group input,
+    .input-group select {
+        height: 44px;
+        min-height: 44px;
+    }
+    
+    .btn {
+        height: 44px;
+        min-height: 44px;
+    }
 }
 
 .input-group input::placeholder {
@@ -193,6 +923,11 @@ body {
     box-shadow: 0 2px 4px rgba(1, 116, 190, 0.2);
     font-family: inherit;
     white-space: nowrap;
+    height: 48px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn:hover {
@@ -681,6 +1416,281 @@ body {
     }
 }
 
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.notification-success {
+    background: #10b981;
+    color: white;
+}
+
+.notification-error {
+    background: #ef4444;
+    color: white;
+}
+
+.notification-info {
+    background: #3b82f6;
+    color: white;
+}
+
+.notification-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notification-message {
+    flex: 1;
+    font-weight: 500;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.notification-close:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Floating Reset Button */
+.floating-reset-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: linear-gradient(135deg, #FFC436 0%, #f59e0b 100%);
+    color: #0C356A;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    box-shadow: 0 4px 20px rgba(255, 196, 54, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.floating-reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(255, 196, 54, 0.6);
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.floating-reset-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(255, 196, 54, 0.4);
+}
+
+.floating-btn-icon {
+    font-size: 16px;
+    animation: rotate 2s linear infinite;
+}
+
+.floating-btn-text {
+    font-weight: 600;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Hide text on small screens */
+@media (max-width: 480px) {
+    .floating-reset-btn {
+        bottom: 15px;
+        right: 15px;
+        padding: 12px;
+        min-width: 50px;
+        border-radius: 50%;
+    }
+    
+    .floating-btn-text {
+        display: none;
+    }
+    
+    .floating-btn-icon {
+        font-size: 18px;
+    }
+}
+
+/* SweetAlert2 Custom Styling */
+.swal2-popup {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+}
+
+.swal2-title {
+    color: #0C356A !important;
+    font-weight: 700 !important;
+    font-size: 24px !important;
+}
+
+.swal2-html-container {
+    color: #374151 !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+}
+
+.swal2-confirm {
+    background: linear-gradient(135deg, #0174BE 0%, #0C356A 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    box-shadow: 0 4px 12px rgba(1, 116, 190, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal2-confirm:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(1, 116, 190, 0.4) !important;
+}
+
+.swal2-cancel {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal2-cancel:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4) !important;
+}
+
+.swal2-success {
+    border-color: #10b981 !important;
+}
+
+.swal2-success [class^=swal2-success-line] {
+    background-color: #10b981 !important;
+}
+
+.swal2-success .swal2-success-ring {
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.swal2-error {
+    border-color: #ef4444 !important;
+}
+
+.swal2-error [class^=swal2-x-mark-line] {
+    background-color: #ef4444 !important;
+}
+
+.swal2-warning {
+    border-color: #f59e0b !important;
+}
+
+.swal2-warning [class^=swal2-warning-line] {
+    background-color: #f59e0b !important;
+}
+
+.swal2-info {
+    border-color: #3b82f6 !important;
+}
+
+.swal2-info [class^=swal2-info-line] {
+    background-color: #3b82f6 !important;
+}
+
+/* Toast Notifications */
+.swal2-toast {
+    border-radius: 12px !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.swal2-toast .swal2-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+.swal2-toast .swal2-html-container {
+    font-size: 14px !important;
+    margin: 8px 0 0 0 !important;
+}
+
+/* Custom Success Toast */
+.swal2-toast.swal2-show.swal2-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+}
+
+/* Custom Error Toast */
+.swal2-toast.swal2-show.swal2-error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    color: white !important;
+}
+
+/* Custom Warning Toast */
+.swal2-toast.swal2-show.swal2-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: white !important;
+}
+
+/* Custom Info Toast */
+.swal2-toast.swal2-show.swal2-info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: white !important;
+}
+
 /* Footer */
 .footer {
     background: linear-gradient(135deg, #0C356A 0%, #0174BE 100%);
@@ -849,6 +1859,13 @@ body {
     
     .header {
         padding: 20px 15px;
+    }
+    
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
     }
     
     .header h1 {
