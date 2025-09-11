@@ -132,14 +132,25 @@ async function resetAllData() {
         discount = { amount: 0, percentage: 0, type: 'menu' };
         
         // Clear all input fields
-        document.getElementById('participantName').value = '';
-        document.getElementById('menuName').value = '';
-        document.getElementById('menuPrice').value = '';
-        document.getElementById('additionalCostName').value = '';
-        document.getElementById('additionalCostAmount').value = '';
-        document.getElementById('discountAmount').value = '';
-        document.getElementById('discountPercentage').value = '';
-        document.getElementById('discountType').value = 'menu';
+        const participantName = document.getElementById('participantName');
+        const menuName = document.getElementById('menuName');
+        const menuPrice = document.getElementById('menuPrice');
+        const additionalCostName = document.getElementById('additionalCostName');
+        const additionalCostAmount = document.getElementById('additionalCostAmount');
+        const discountAmount = document.getElementById('discountAmount');
+        const discountPercentage = document.getElementById('discountPercentage');
+        
+        if (participantName) participantName.value = '';
+        if (menuName) menuName.value = '';
+        if (menuPrice) menuPrice.value = '';
+        if (additionalCostName) additionalCostName.value = '';
+        if (additionalCostAmount) additionalCostAmount.value = '';
+        if (discountAmount) discountAmount.value = '';
+        if (discountPercentage) discountPercentage.value = '';
+        
+        // Reset custom select elements
+        resetCustomSelect('discountType', 'menu', 'Setelah Menu');
+        resetCustomSelect('additionalCostType', 'fixed', 'Tetap (Rp)');
         
         // Clear localStorage
         try {
@@ -385,9 +396,52 @@ function closeAllSelects() {
 
 // Get custom select value
 function getCustomSelectValue(selectId) {
-    const customSelect = document.getElementById(selectId) || document.querySelector(`[onclick*="${selectId}"]`).closest('.custom-select');
-    const selectedOption = customSelect.querySelector('.select-option.selected');
-    return selectedOption ? selectedOption.dataset.value : null;
+    try {
+        const customSelect = document.getElementById(selectId) || document.querySelector(`[onclick*="${selectId}"]`)?.closest('.custom-select');
+        
+        if (!customSelect) {
+            console.warn(`InoBill PWA: Custom select with id "${selectId}" not found`);
+            return null;
+        }
+        
+        const selectedOption = customSelect.querySelector('.select-option.selected');
+        return selectedOption ? selectedOption.dataset.value : null;
+    } catch (error) {
+        console.error('InoBill PWA: Error getting custom select value:', error);
+        return null;
+    }
+}
+
+// Reset custom select to default value
+function resetCustomSelect(selectId, defaultValue, defaultText) {
+    try {
+        const customSelect = document.getElementById(selectId) || document.querySelector(`[onclick*="${selectId}"]`)?.closest('.custom-select');
+        
+        if (!customSelect) {
+            console.warn(`InoBill PWA: Custom select with id "${selectId}" not found for reset`);
+            return;
+        }
+        
+        const valueSpan = customSelect.querySelector('.select-value');
+        const optionElements = customSelect.querySelectorAll('.select-option');
+        
+        // Update value display
+        if (valueSpan) {
+            valueSpan.textContent = defaultText;
+        }
+        
+        // Update selected option
+        optionElements.forEach(option => {
+            option.classList.remove('selected');
+            if (option.dataset.value === defaultValue) {
+                option.classList.add('selected');
+            }
+        });
+        
+        console.log(`InoBill PWA: Custom select "${selectId}" reset to "${defaultValue}"`);
+    } catch (error) {
+        console.error('InoBill PWA: Error resetting custom select:', error);
+    }
 }
 
 // Toggle discount fields (mutually exclusive)
@@ -429,7 +483,14 @@ function toggleDiscountFields() {
     // Update discount object
     discount.amount = amountValue;
     discount.percentage = percentageValue;
-    discount.type = getCustomSelectValue('discountType') || 'menu';
+    
+    // Safely get custom select value
+    try {
+        discount.type = getCustomSelectValue('discountType') || 'menu';
+    } catch (error) {
+        console.warn('InoBill PWA: Error getting discount type, using default');
+        discount.type = 'menu';
+    }
     
     // Trigger calculation
     calculateSplit();
@@ -549,11 +610,18 @@ async function removeMenuItem(index) {
 function addAdditionalCost() {
     const nameInput = document.getElementById('additionalCostName');
     const amountInput = document.getElementById('additionalCostAmount');
-    const typeValue = getCustomSelectValue('additionalCostType');
     
     const name = nameInput.value.trim();
     const amount = parseFloat(amountInput.value) || 0;
-    const type = typeValue || 'fixed';
+    
+    // Safely get custom select value
+    let type = 'fixed';
+    try {
+        type = getCustomSelectValue('additionalCostType') || 'fixed';
+    } catch (error) {
+        console.warn('InoBill PWA: Error getting additional cost type, using default');
+        type = 'fixed';
+    }
     
     if (!name) {
         showError('Error Input', 'Masukkan nama biaya tambahan');
@@ -955,6 +1023,7 @@ window.resetAllData = resetAllData;
 window.toggleSelect = toggleSelect;
 window.selectOption = selectOption;
 window.getCustomSelectValue = getCustomSelectValue;
+window.resetCustomSelect = resetCustomSelect;
 
 // Show notification using SweetAlert2 Toast
 function showNotification(message, type = 'info') {
