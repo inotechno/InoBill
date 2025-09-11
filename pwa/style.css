@@ -130,6 +130,7 @@ body {
 .section.full-width {
     grid-column: 1 / -1;
     width: 100%;
+    margin-bottom: 32px;
 }
 
 .section h2 {
