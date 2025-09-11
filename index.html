@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>InoBill - Pembagi Tagihan Adil & Mudah | InoTechno</title>
+    <meta name="title" content="InoBill - Pembagi Tagihan Adil & Mudah | InoTechno">
+    <meta name="description" content="Aplikasi pembagi tagihan yang adil untuk restoran, cafe, dan makan bersama. Hitung pembagian biaya makanan, parkir, PPN, dan diskon dengan mudah. Gratis dan tidak perlu install. Dibuat oleh InoTechno.">
+    <meta name="keywords" content="InoBill, split bill, pembagi tagihan, kalkulator tagihan, pembagian biaya, restoran, cafe, makan bersama, hitung tagihan, pembagian adil, InoTechno, aplikasi web, gratis, mudah digunakan, perhitungan adil">
+    <meta name="author" content="InoTechno">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="language" content="Indonesian">
+    <meta name="geo.region" content="ID">
+    <meta name="geo.country" content="Indonesia">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    <meta name="revisit-after" content="7 days">
+    <meta name="expires" content="never">
+    <meta name="copyright" content="InoTechno">
+    <meta name="designer" content="InoTechno">
+    <meta name="publisher" content="InoTechno">
+    <meta name="category" content="Finance, Calculator, Web Application">
+    <meta name="coverage" content="Worldwide">
+    <meta name="target" content="all">
+    <meta name="audience" content="all">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://inobill.inotechno.com/">
+    <meta property="og:title" content="InoBill - Pembagi Tagihan Adil & Mudah | InoTechno">
+    <meta property="og:description" content="Aplikasi pembagi tagihan yang adil untuk restoran, cafe, dan makan bersama. Hitung pembagian biaya makanan, parkir, PPN, dan diskon dengan mudah. Dibuat oleh InoTechno.">
+    <meta property="og:image" content="https://inobill.inotechno.com/icon.png">
+    <meta property="og:site_name" content="InoBill by InoTechno">
+    <meta property="og:locale" content="id_ID">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://inobill.inotechno.com/">
+    <meta property="twitter:title" content="InoBill - Pembagi Tagihan Adil & Mudah | InoTechno">
+    <meta property="twitter:description" content="Aplikasi pembagi tagihan yang adil untuk restoran, cafe, dan makan bersama. Hitung pembagian biaya makanan, parkir, PPN, dan diskon dengan mudah. Dibuat oleh InoTechno.">
+    <meta property="twitter:image" content="https://inobill.inotechno.com/icon.png">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#0174BE">
+    <meta name="msapplication-TileColor" content="#0174BE">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="InoBill">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="application-name" content="InoBill">
+    <meta name="msapplication-tooltip" content="InoBill - Pembagi Tagihan Adil & Mudah">
+    <meta name="msapplication-starturl" content="/">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://inobill.inotechno.com/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="shortcut icon" href="icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "InoBill by InoTechno",
+        "description": "Aplikasi pembagi tagihan yang adil untuk restoran, cafe, dan makan bersama. Hitung pembagian biaya makanan, parkir, PPN, dan diskon dengan mudah.",
+        "url": "https://inobill.inotechno.com/",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "IDR"
+        },
+        "featureList": [
+            "Pembagian tagihan yang adil",
+            "Kalkulator biaya tambahan",
+            "Sistem diskon fleksibel",
+            "Interface yang mudah digunakan",
+            "Tidak perlu install aplikasi"
+        ],
+        "author": {
+            "@type": "Organization",
+            "name": "InoTechno"
+        },
+        "inLanguage": "id",
+        "isAccessibleForFree": true,
+        "datePublished": "2024-01-01",
+        "dateModified": "2024-12-11",
+        "version": "1.0",
+        "softwareVersion": "1.0",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "memoryRequirements": "No specific memory requirements",
+        "storageRequirements": "No storage requirements",
+        "permissions": "No special permissions required",
+        "screenshot": "https://inobill.inotechno.com/screenshot.png",
+        "softwareHelp": "https://inobill.inotechno.com/help",
+        "releaseNotes": "Initial release of InoBill - A fair and easy split bill calculator"
+    }
+    </script>
+    
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "InoTechno",
+        "url": "https://inotechno.com",
+        "logo": "https://inotechno.com/logo.png",
+        "description": "InoTechno - Technology solutions and web applications",
+        "foundingDate": "2024",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "info@inotechno.com",
+            "contactType": "customer service"
+        },
+        "sameAs": [
+            "https://inotechno.com"
+        ]
+    }
+    </script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🍽️ InoBill</h1>
+            <p>Hitung pembagian tagihan yang adil untuk setiap peserta</p>
+        </header>
+
+        <main class="content">
+            <!-- Two Column Layout for most sections -->
+            <div class="sections-grid">
+                <!-- Participants Section -->
+                <section class="section">
+                    <h2>👥 Peserta</h2>
+                    <div class="add-participant">
+                        <input type="text" id="participantName" placeholder="Nama peserta" aria-label="Nama peserta">
+                        <button class="btn" onclick="addParticipant()" aria-label="Tambah peserta baru">Tambah Peserta</button>
+                    </div>
+                    <div id="participantsList" class="participant-list"></div>
+                </section>
+
+                <!-- Menu Section -->
+                <section class="section">
+                    <h2>🍜 Menu & Harga</h2>
+                    <div class="menu-grid" id="menuGrid"></div>
+                    <div class="form-group">
+                        <label>Tambah Menu Baru:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="newMenuItem" placeholder="Nama menu" aria-label="Nama menu baru">
+                            <input type="number" id="newMenuPrice" placeholder="Harga" min="0" aria-label="Harga menu">
+                            <button class="btn" onclick="addMenuItem()" aria-label="Tambah menu baru">Tambah Menu</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Order Section - Full Width -->
+            <section class="section full-width">
+                <h2>📝 Pesanan</h2>
+                <div id="ordersContainer"></div>
+            </section>
+
+            <!-- Two Column Layout for Additional Costs and Discount -->
+            <div class="sections-grid">
+                <!-- Additional Costs Section -->
+                <section class="section">
+                    <h2>💰 Biaya Tambahan</h2>
+                    <div id="additionalCostsContainer" class="additional-costs"></div>
+                    <div class="form-group">
+                        <label>Tambah Biaya Baru:</label>
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                            <input type="text" id="newCostName" placeholder="Nama biaya">
+                            <input type="number" id="newCostValue" placeholder="Nilai" min="0">
+                            <select id="newCostType">
+                                <option value="fixed">Fixed (Rp)</option>
+                                <option value="percentage">Percentage (%)</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="addAdditionalCost()">Tambah Biaya</button>
+                    </div>
+                </section>
+
+                <!-- Discount Section -->
+                <section class="section">
+                    <h2>🎫 Diskon</h2>
+                    <div class="form-group">
+                        <label>Jenis Diskon</label>
+                        <select id="discountType" onchange="calculateSplit()">
+                            <option value="menu-only">Hanya dari Total Menu</option>
+                            <option value="total-bill">Dari Total Semua (Menu + Biaya Tambahan)</option>
+                        </select>
+                    </div>
+                    <div class="discount-fields">
+                        <div class="form-group">
+                            <label>Diskon (Rp)</label>
+                            <input type="number" id="discountAmount" placeholder="0" min="0" onchange="toggleDiscountFields()" oninput="toggleDiscountFields()">
+                        </div>
+                        <div class="form-group">
+                            <label>Diskon (%)</label>
+                            <input type="number" id="discountPercentage" placeholder="0" min="0" max="100" onchange="toggleDiscountFields()" oninput="toggleDiscountFields()">
+                        </div>
+                    </div>
+                    <div id="discountInfo" style="display: none; color: #4facfe; font-size: 0.9em; margin-top: 10px; padding: 10px; background: #e6f3ff; border-radius: 5px; border-left: 4px solid #4facfe;">
+                        <strong>💡 Info:</strong> Pilih salah satu jenis diskon - Rupiah (Rp) atau Persentase (%).
+                    </div>
+                </section>
+            </div>
+
+            <!-- Calculate Button -->
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-secondary" onclick="calculateSplit()" style="font-size: 1.2em; padding: 15px 40px;">
+                    🧮 Hitung Pembagian
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="results hidden">
+                <h2 style="text-align: center;margin-bottom: 20px;">📊 Hasil Perhitungan</h2>
+                <div id="resultsContainer"></div>
+                <div id="totalSummary" class="total-summary"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Data storage
+        let participants = [];
+        let menuItems = [];
+        let additionalCosts = [];
+        let orders = {};
+
+        // Initialize the app
+        function init() {
+            // Add example participants
+            const exampleParticipants = ['Septi', 'Ashafa', 'Indah', 'Chrisna', 'Vita', 'Toni', 'Yesar', 'Dimas', 'Abhi', 'Nia', 'Ais', 'Ugy'];
+            exampleParticipants.forEach(name => {
+                participants.push(name);
+                orders[name] = [];
+            });
+
+            // Add example menu items
+            addMenuItemToData('Mie', 15500);
+            addMenuItemToData('Udang/Lumpia', 14500);
+
+            // Add example additional costs
+            addAdditionalCostToData('Pengiriman', 2000, 'fixed');
+            addAdditionalCostToData('Layanan', 6000, 'fixed');
+            addAdditionalCostToData('Pengemasan', 1000, 'fixed');
+            addAdditionalCostToData('Parkir', 5000, 'fixed');
+
+            // Set example orders
+            orders['Septi'] = ['Mie'];
+            orders['Ashafa'] = ['Mie'];
+            orders['Indah'] = ['Mie'];
+            orders['Chrisna'] = ['Mie', 'Udang/Lumpia'];
+            orders['Vita'] = ['Udang/Lumpia'];
+            orders['Toni'] = ['Mie', 'Udang/Lumpia'];
+            orders['Yesar'] = ['Mie', 'Udang/Lumpia'];
+            orders['Dimas'] = ['Udang/Lumpia'];
+            orders['Abhi'] = ['Mie'];
+            orders['Nia'] = ['Mie'];
+            orders['Ais'] = ['Mie'];
+            orders['Ugy'] = ['Mie'];
+
+            // Set example discount
+            document.getElementById('discountAmount').value = 56875;
+            document.getElementById('discountType').value = 'total-bill'; // Default to total bill discount
+
+            renderParticipants();
+            renderMenu();
+            renderAdditionalCosts();
+            renderOrders();
+        }
+
+        // Add participant
+        function addParticipant() {
+            const name = document.getElementById('participantName').value.trim();
+            if (name && !participants.includes(name)) {
+                participants.push(name);
+                orders[name] = [];
+                document.getElementById('participantName').value = '';
+                renderParticipants();
+                renderOrders();
+            }
+        }
+
+        // Remove participant
+        function removeParticipant(name) {
+            participants = participants.filter(p => p !== name);
+            delete orders[name];
+            renderParticipants();
+            renderOrders();
+        }
+
+        // Add menu item to data
+        function addMenuItemToData(name, price) {
+            if (!menuItems.find(item => item.name === name)) {
+                menuItems.push({ name, price });
+            }
+        }
+
+        // Add menu item
+        function addMenuItem() {
+            const name = document.getElementById('newMenuItem').value.trim();
+            const price = parseInt(document.getElementById('newMenuPrice').value);
+            
+            if (name && price > 0) {
+                addMenuItemToData(name, price);
+                document.getElementById('newMenuItem').value = '';
+                document.getElementById('newMenuPrice').value = '';
+                renderMenu();
+                renderOrders();
+            }
+        }
+
+        // Remove menu item
+        function removeMenuItem(name) {
+            menuItems = menuItems.filter(item => item.name !== name);
+            // Remove from all orders
+            participants.forEach(participant => {
+                if (orders[participant]) {
+                    orders[participant] = orders[participant].filter(item => item !== name);
+                }
+            });
+            renderMenu();
+            renderOrders();
+        }
+
+        // Add additional cost to data
+        function addAdditionalCostToData(name, value, type) {
+            if (!additionalCosts.find(cost => cost.name === name)) {
+                additionalCosts.push({ name, value, type });
+            }
+        }
+
+        // Add additional cost
+        function addAdditionalCost() {
+            const name = document.getElementById('newCostName').value.trim();
+            const value = parseFloat(document.getElementById('newCostValue').value) || 0;
+            const type = document.getElementById('newCostType').value;
+            
+            if (name) {
+                addAdditionalCostToData(name, value, type);
+                document.getElementById('newCostName').value = '';
+                document.getElementById('newCostValue').value = '';
+                renderAdditionalCosts();
+            }
+        }
+
+        // Remove additional cost
+        function removeAdditionalCost(name) {
+            additionalCosts = additionalCosts.filter(cost => cost.name !== name);
+            renderAdditionalCosts();
+        }
+
+        // Render participants
+        function renderParticipants() {
+            const container = document.getElementById('participantsList');
+            container.innerHTML = participants.map(name => `
+                <div class="participant-item">
+                    <span>${name}</span>
+                    <button class="remove-btn" onclick="removeParticipant('${name}')">Hapus</button>
+                </div>
+            `).join('');
+        }
+
+        // Render menu
+        function renderMenu() {
+            const container = document.getElementById('menuGrid');
+            container.innerHTML = menuItems.map(item => `
+                <div class="menu-item">
+                    <input type="checkbox" id="menu_${item.name}" value="${item.name}" onchange="updateOrder('${item.name}')">
+                    <label for="menu_${item.name}">${item.name}</label>
+                    <span class="price">Rp ${item.price.toLocaleString()}</span>
+                    <button class="remove-btn" onclick="removeMenuItem('${item.name}')" style="margin-left: 10px;">Hapus</button>
+                </div>
+            `).join('');
+        }
+
+        // Render additional costs
+        function renderAdditionalCosts() {
+            const container = document.getElementById('additionalCostsContainer');
+            container.innerHTML = additionalCosts.map(cost => `
+                <div class="form-group">
+                    <label>${cost.name} ${cost.type === 'percentage' ? '(%)' : '(Rp)'}</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="number" 
+                               id="cost_${cost.name}" 
+                               value="${cost.value}" 
+                               min="0" 
+                               ${cost.type === 'percentage' ? 'max="100"' : ''}
+                               onchange="updateAdditionalCost('${cost.name}', this.value)"
+                               style="flex: 1;">
+                        <button class="remove-btn" onclick="removeAdditionalCost('${cost.name}')">Hapus</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update additional cost
+        function updateAdditionalCost(name, value) {
+            const cost = additionalCosts.find(c => c.name === name);
+            if (cost) {
+                cost.value = parseFloat(value) || 0;
+            }
+        }
+
+        // Render orders
+        function renderOrders() {
+            const container = document.getElementById('ordersContainer');
+            container.innerHTML = participants.map(participant => `
+                <div class="form-group">
+                    <label>${participant}:</label>
+                    <div class="orders-grid">
+                        ${menuItems.map(item => `
+                            <div class="menu-item">
+                                <input type="checkbox" 
+                                       id="${participant}_${item.name}" 
+                                       value="${item.name}"
+                                       ${orders[participant]?.includes(item.name) ? 'checked' : ''}
+                                       onchange="updateParticipantOrder('${participant}', '${item.name}')">
+                                <label for="${participant}_${item.name}">${item.name}</label>
+                                <span class="price">Rp ${item.price.toLocaleString()}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update participant order
+        function updateParticipantOrder(participant, itemName) {
+            if (!orders[participant]) {
+                orders[participant] = [];
+            }
+            
+            const checkbox = document.getElementById(`${participant}_${itemName}`);
+            if (checkbox.checked) {
+                if (!orders[participant].includes(itemName)) {
+                    orders[participant].push(itemName);
+                }
+            } else {
+                orders[participant] = orders[participant].filter(item => item !== itemName);
+            }
+        }
+
+        // Calculate split bill
+        function calculateSplit() {
+            if (participants.length === 0) {
+                alert('Tambah minimal 1 peserta!');
+                return;
+            }
+
+            // Calculate individual costs
+            const individualCosts = {};
+            let totalFoodCost = 0;
+
+            participants.forEach(participant => {
+                let cost = 0;
+                if (orders[participant]) {
+                    orders[participant].forEach(itemName => {
+                        const menuItem = menuItems.find(item => item.name === itemName);
+                        if (menuItem) {
+                            cost += menuItem.price;
+                            totalFoodCost += menuItem.price;
+                        }
+                    });
+                }
+                individualCosts[participant] = cost;
+            });
+
+            // Calculate additional costs dynamically
+            let totalAdditionalCosts = 0;
+            const additionalCostsBreakdown = {};
+
+            additionalCosts.forEach(cost => {
+                let costValue = 0;
+                if (cost.type === 'percentage') {
+                    costValue = (totalFoodCost * cost.value) / 100;
+                } else {
+                    costValue = cost.value;
+                }
+                additionalCostsBreakdown[cost.name] = costValue;
+                totalAdditionalCosts += costValue;
+            });
+
+            // Calculate discount
+            const discountAmount = parseFloat(document.getElementById('discountAmount').value) || 0;
+            const discountPercentage = parseFloat(document.getElementById('discountPercentage').value) || 0;
+            const discountType = document.getElementById('discountType').value;
+            
+            let totalDiscount = 0;
+            let foodAfterDiscount = totalFoodCost;
+            let additionalCostsAfterDiscount = totalAdditionalCosts;
+            
+            // Use either amount OR percentage (fields are mutually exclusive)
+            if (discountAmount > 0) {
+                // Use amount (Rp) - apply discount proportionally to menu items
+                totalDiscount = discountAmount;
+                
+                if (discountType === 'menu-only') {
+                    // Diskon hanya dari makanan, biaya tambahan tidak terpengaruh
+                    foodAfterDiscount = Math.max(0, totalFoodCost - totalDiscount);
+                    additionalCostsAfterDiscount = totalAdditionalCosts;
+                } else {
+                    // Diskon dari total semua, distribusi proporsional
+                    const totalBillBeforeDiscount = totalFoodCost + totalAdditionalCosts;
+                    const foodDiscountRatio = totalFoodCost / totalBillBeforeDiscount;
+                    const additionalCostDiscountRatio = totalAdditionalCosts / totalBillBeforeDiscount;
+                    
+                    foodAfterDiscount = Math.max(0, totalFoodCost - (totalDiscount * foodDiscountRatio));
+                    additionalCostsAfterDiscount = Math.max(0, totalAdditionalCosts - (totalDiscount * additionalCostDiscountRatio));
+                }
+            } else if (discountPercentage > 0) {
+                // Use percentage (%) - apply discount proportionally to menu items
+                if (discountType === 'menu-only') {
+                    totalDiscount = (totalFoodCost * discountPercentage) / 100;
+                    foodAfterDiscount = Math.max(0, totalFoodCost - totalDiscount);
+                    additionalCostsAfterDiscount = totalAdditionalCosts;
+                } else {
+                    const totalBillBeforeDiscount = totalFoodCost + totalAdditionalCosts;
+                    totalDiscount = (totalBillBeforeDiscount * discountPercentage) / 100;
+                    const foodDiscountRatio = totalFoodCost / totalBillBeforeDiscount;
+                    const additionalCostDiscountRatio = totalAdditionalCosts / totalBillBeforeDiscount;
+                    
+                    foodAfterDiscount = Math.max(0, totalFoodCost - (totalDiscount * foodDiscountRatio));
+                    additionalCostsAfterDiscount = Math.max(0, totalAdditionalCosts - (totalDiscount * additionalCostDiscountRatio));
+                }
+            }
+
+            // Distribute additional costs proportionally
+            const additionalCostPerPerson = additionalCostsAfterDiscount / participants.length;
+
+            // Calculate final amounts with proportional discount per menu item
+            const finalAmounts = {};
+            let grandTotal = 0;
+
+            // Step 1: Calculate subtotal for each menu item (qty × price)
+            const menuSubtotals = {};
+            const menuQuantities = {};
+            
+            menuItems.forEach(item => {
+                // Count total quantity of this item
+                let itemQuantity = 0;
+                participants.forEach(participant => {
+                    if (orders[participant] && orders[participant].includes(item.name)) {
+                        itemQuantity++;
+                    }
+                });
+                
+                menuQuantities[item.name] = itemQuantity;
+                menuSubtotals[item.name] = item.price * itemQuantity;
+            });
+
+            // Step 2: Calculate percentage of each menu from total subtotal
+            const menuPercentages = {};
+            Object.keys(menuSubtotals).forEach(itemName => {
+                menuPercentages[itemName] = totalFoodCost > 0 ? (menuSubtotals[itemName] / totalFoodCost) * 100 : 0;
+            });
+
+            // Step 3: Calculate factor and adjust menu prices
+            const menuItemDiscounts = {};
+            const totalBillAfterDiscount = totalFoodCost + totalAdditionalCosts - totalDiscount;
+            
+            // Calculate factor = (total subtotal + total biaya tambahan + total diskon) / total subtotal
+            const factor = totalFoodCost > 0 ? (totalFoodCost + totalAdditionalCosts - totalDiscount) / totalFoodCost : 1;
+            
+            // Adjust price for each menu = original price * factor
+            Object.keys(menuSubtotals).forEach(itemName => {
+                const originalPrice = menuItems.find(item => item.name === itemName)?.price || 0;
+                menuItemDiscounts[itemName] = originalPrice * factor;
+            });
+
+            // Step 4: Calculate each participant's cost based on their orders and adjusted menu prices
+            participants.forEach(participant => {
+                let participantFoodCost = 0;
+                
+                if (orders[participant]) {
+                    orders[participant].forEach(itemName => {
+                        if (menuItemDiscounts[itemName]) {
+                            participantFoodCost += menuItemDiscounts[itemName];
+                        }
+                    });
+                }
+                
+                // The adjusted price already includes additional costs and discount
+                finalAmounts[participant] = participantFoodCost;
+                grandTotal += participantFoodCost;
+            });
+
+            // Display results
+            displayResults(individualCosts, finalAmounts, {
+                totalFoodCost: foodAfterDiscount,
+                additionalCostsBreakdown,
+                totalDiscount,
+                totalAdditionalCosts: additionalCostsAfterDiscount,
+                grandTotal,
+                menuItemDiscounts,
+                menuSubtotals,
+                menuPercentages,
+                menuQuantities,
+                factor: totalFoodCost > 0 ? (totalFoodCost + totalAdditionalCosts - totalDiscount) / totalFoodCost : 1
+            });
+        }
+
+        // Display results
+        function displayResults(individualCosts, finalAmounts, summary) {
+            const container = document.getElementById('resultsContainer');
+            const totalContainer = document.getElementById('totalSummary');
+            
+            container.innerHTML = participants.map(participant => `
+                <div class="participant-result">
+                    <div>
+                        <div class="participant-name">${participant}</div>
+                        <div style="font-size: 0.9em; color: #666;">
+                            Makanan: Rp ${individualCosts[participant].toLocaleString()}
+                        </div>
+                    </div>
+                    <div class="participant-amount">
+                        Rp ${finalAmounts[participant].toLocaleString()}
+                    </div>
+                </div>
+            `).join('');
+
+            // Create breakdown of additional costs
+            const additionalCostsText = Object.entries(summary.additionalCostsBreakdown)
+                .map(([name, value]) => `${name}: Rp ${value.toLocaleString()}`)
+                .join('<br>');
+
+            // Create detailed menu breakdown with factor calculation
+            const menuBreakdown = summary.menuSubtotals ? 
+                Object.entries(summary.menuSubtotals)
+                    .map(([name, subtotal]) => {
+                        const qty = summary.menuQuantities[name] || 0;
+                        const originalPrice = menuItems.find(item => item.name === name)?.price || 0;
+                        const newPrice = summary.menuItemDiscounts[name] || 0;
+                        const factor = summary.factor || 1;
+                        return `
+                            <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee;">
+                                <div>
+                                    <strong style="color: #2c5aa0;">${name}</strong><br>
+                                    <small style="color: #666;">Qty: ${qty} × Rp ${originalPrice.toLocaleString()}</small><br>
+                                    <small style="color: #666;">Subtotal: Rp ${subtotal.toLocaleString()}</small>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="color: #666; font-size: 0.8em;">Faktor: ${factor.toFixed(4)}</div><br>
+                                    <div style="color: #2c5aa0; font-weight: bold;">Harga Baru: Rp ${newPrice.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('') : '';
+
+            // Get discount type for display
+            const discountType = document.getElementById('discountType').value;
+            const discountTypeText = discountType === 'menu-only' ? 'Menu' : 'Total Semua';
+
+            // Create calculation breakdown based on discount type
+            let calculationBreakdown = '';
+            
+            if (discountType === 'menu-only') {
+                // For menu-only discount: show original food, then discount, then additional costs
+                const originalFoodCost = summary.totalFoodCost + summary.totalDiscount;
+                calculationBreakdown = `
+                    <div><strong>Rincian Perhitungan:</strong></div>
+                    <div style="margin-top: 10px;">
+                        <div>Total Makanan: Rp ${originalFoodCost.toLocaleString()}</div>
+                        ${summary.totalDiscount > 0 ? `
+                            <div style="color: #ff6b6b;">
+                                Diskon (Menu): -Rp ${summary.totalDiscount.toLocaleString()}
+                            </div>
+                            <div style="border-top: 1px solid #ddd; padding-top: 5px; margin-top: 5px;">
+                                <strong>Makanan Setelah Diskon: Rp ${summary.totalFoodCost.toLocaleString()}</strong>
+                            </div>
+                        ` : ''}
+                        <div style="margin-top: 10px;">Biaya Tambahan: Rp ${summary.totalAdditionalCosts.toLocaleString()}</div>
+                    </div>
+                `;
+            } else {
+                // For total-bill discount: show original total, then discount
+                const originalFoodCost = summary.totalFoodCost + (summary.totalDiscount * (summary.totalFoodCost / (summary.totalFoodCost + summary.totalAdditionalCosts)));
+                const originalAdditionalCost = summary.totalAdditionalCosts + (summary.totalDiscount * (summary.totalAdditionalCosts / (summary.totalFoodCost + summary.totalAdditionalCosts)));
+                const originalTotal = originalFoodCost + originalAdditionalCost;
+                
+                calculationBreakdown = `
+                    <div><strong>Rincian Perhitungan:</strong></div>
+                    <div style="margin-top: 10px;">
+                        <div>Total Makanan: Rp ${originalFoodCost.toLocaleString()}</div>
+                        <div>Biaya Tambahan: Rp ${originalAdditionalCost.toLocaleString()}</div>
+                        <div style="border-top: 1px solid #ddd; padding-top: 5px; margin-top: 5px;">
+                            <strong>Subtotal: Rp ${originalTotal.toLocaleString()}</strong>
+                        </div>
+                        ${summary.totalDiscount > 0 ? `
+                            <div style="color: #ff6b6b;">
+                                Diskon (Total Semua): -Rp ${summary.totalDiscount.toLocaleString()}
+                            </div>
+                            <div style="border-top: 1px solid #ddd; padding-top: 5px; margin-top: 5px;">
+                                <strong>Total Setelah Diskon: Rp ${summary.grandTotal.toLocaleString()}</strong>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            totalContainer.innerHTML = `
+                <h3>Total Tagihan</h3>
+                <div class="total-amount">Rp ${summary.grandTotal.toLocaleString()}</div>
+                <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.9;">
+                    ${calculationBreakdown}
+                    <div style="margin-top: 15px; font-size: 0.8em;">
+                        <strong>Detail Biaya Tambahan:</strong><br>
+                        ${additionalCostsText}
+                    </div>
+                    ${menuBreakdown ? `
+                        <div style="margin-top: 20px; font-size: 0.9em; border: 2px solid #2c5aa0; border-radius: 8px; padding: 15px; background: #ffffff;">
+                            <div style="color: #2c5aa0; font-weight: bold; font-size: 1.1em; margin-bottom: 15px; text-align: center;">
+                                🔢 Proses Perhitungan dengan Faktor Pembagi
+                            </div>
+                            <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #2c5aa0;">
+                                <div style="font-weight: bold; color: #2c5aa0; margin-bottom: 5px;">📐 Formula Faktor Pembagi:</div>
+                                <div style="font-family: monospace; background: #e9ecef; color: #212529; padding: 8px; border-radius: 3px; margin: 5px 0;">
+                                    (Total Subtotal + Biaya Tambahan - Diskon) ÷ Total Subtotal = <strong style="color: #dc3545;">${summary.factor?.toFixed(4) || '1.0000'}</strong>
+                                </div>
+                                <div style="font-weight: bold; color: #2c5aa0; margin-top: 8px;">💰 Harga Baru:</div>
+                                <div style="font-family: monospace; background: #e9ecef; color: #212529; padding: 8px; border-radius: 3px; margin: 5px 0;">
+                                    Harga Asli × Faktor Pembagi
+                                </div>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #dee2e6;">
+                                ${menuBreakdown}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${summary.totalDiscount > 0 ? `
+                        <div style="margin-top: 10px; font-size: 0.8em; color: #ff6b6b;">
+                            <strong>Catatan:</strong> Diskon diterapkan pada ${discountTypeText.toLowerCase()}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('resultsSection').classList.remove('hidden');
+        }
+
+        // Toggle discount fields - disable one when other is filled
+        function toggleDiscountFields() {
+            const discountAmountInput = document.getElementById('discountAmount');
+            const discountPercentageInput = document.getElementById('discountPercentage');
+            const infoDiv = document.getElementById('discountInfo');
+            
+            const discountAmount = parseFloat(discountAmountInput.value) || 0;
+            const discountPercentage = parseFloat(discountPercentageInput.value) || 0;
+            
+            if (discountAmount > 0) {
+                // If Rp is filled, disable % and clear it
+                discountPercentageInput.disabled = true;
+                discountPercentageInput.value = '';
+                discountPercentageInput.style.opacity = '0.5';
+                discountPercentageInput.style.cursor = 'not-allowed';
+                infoDiv.style.display = 'block';
+                infoDiv.innerHTML = '<strong>💡 Info:</strong> Menggunakan diskon dalam Rupiah (Rp). Field persentase dinonaktifkan.';
+            } else if (discountPercentage > 0) {
+                // If % is filled, disable Rp and clear it
+                discountAmountInput.disabled = true;
+                discountAmountInput.value = '';
+                discountAmountInput.style.opacity = '0.5';
+                discountAmountInput.style.cursor = 'not-allowed';
+                infoDiv.style.display = 'block';
+                infoDiv.innerHTML = '<strong>💡 Info:</strong> Menggunakan diskon dalam Persentase (%). Field Rupiah dinonaktifkan.';
+            } else {
+                // If both are empty, enable both
+                discountAmountInput.disabled = false;
+                discountPercentageInput.disabled = false;
+                discountAmountInput.style.opacity = '1';
+                discountPercentageInput.style.opacity = '1';
+                discountAmountInput.style.cursor = 'text';
+                discountPercentageInput.style.cursor = 'text';
+                infoDiv.style.display = 'none';
+            }
+            
+            // Trigger calculation
+            calculateSplit();
+        }
+
+        // Initialize the app when page loads
+        window.onload = init;
+    </script>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 <strong>InoTechno</strong>. All rights reserved.</p>
+            <p>InoBill - Pembagi Tagihan Adil & Mudah</p>
+            <div class="footer-links">
+                <a href="https://inotechno.my.id" target="_blank" rel="noopener">InoTechno</a>
+                <span>•</span>
+                <a href="mailto:2inotechno0@gmail.com">Contact</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
