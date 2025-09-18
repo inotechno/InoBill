@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://inobill.inotechno.my.id/sitemap.xml
