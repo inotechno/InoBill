@@ -91,6 +91,40 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.header-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.header-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-actions .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.header-actions .btn-icon {
+    font-size: 14px;
+}
+
+.header-actions .btn-text {
+    font-size: 14px;
+}
+
 /* Content */
 .content {
     padding: 40px 30px;
@@ -1926,5 +1960,65 @@ select option:focus {
     .input-group select {
         padding: 10px 12px;
         font-size: 14px;
+    }
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.action-buttons .btn-icon {
+    font-size: 16px;
+}
+
+.action-buttons .btn-text {
+    font-size: 14px;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.action-buttons .btn:active {
+    transform: translateY(0);
+}
+
+.btn-tertiary {
+    background: #FFC436;
+    color: #0C356A;
+}
+
+.btn-tertiary:hover {
+    background: #e6b031;
+}
+
+/* Mobile Action Buttons */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        max-width: 280px;
     }
 }

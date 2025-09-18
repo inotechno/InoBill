@@ -8,12 +8,22 @@ let additionalCosts = [];
 let orders = {};
 let discount = { amount: 0, percentage: 0, type: 'menu' };
 
+// Helper function to format currency without decimals
+function formatCurrency(amount) {
+    return Math.round(amount).toLocaleString('id-ID');
+}
+
 // Initialize the application
 function init() {
     console.log('InoBill PWA: Initializing...');
     
-    // Load data from localStorage
-    loadData();
+    // Try to load data from URL first
+    const urlDataLoaded = loadDataFromUrl();
+    
+    // If no URL data, load from localStorage
+    if (!urlDataLoaded) {
+        loadData();
+    }
     
     // Set up event listeners
     setupEventListeners();
@@ -459,7 +469,7 @@ function toggleDiscountFields() {
         // If both have values, prioritize amount and clear percentage
         discountPercentage.value = '';
         discount.percentage = 0;
-        infoDiv.textContent = 'Menggunakan diskon Rp (prioritas)';
+        infoDiv.textContent = 'Menggunakan diskon (prioritas)';
         infoDiv.style.display = 'block';
     } else if (amountValue > 0) {
         // Only amount has value
@@ -739,7 +749,7 @@ function renderMenuItems() {
     container.innerHTML = menuItems.map((item, index) => `
         <div class="menu-item">
             <span class="name">${item.name}</span>
-            <span class="price">Rp ${item.price.toLocaleString('id-ID')}</span>
+            <span class="price">${formatCurrency(item.price)}</span>
             <button onclick="removeMenuItem(${index})" class="remove-btn">Hapus</button>
         </div>
     `).join('');
@@ -758,7 +768,7 @@ function renderAdditionalCosts() {
     container.innerHTML = additionalCosts.map((cost, index) => `
         <div class="additional-cost-item">
             <span class="name">${cost.name}</span>
-            <span class="amount">${cost.type === 'percentage' ? cost.amount + '%' : 'Rp ' + cost.amount.toLocaleString('id-ID')}</span>
+            <span class="amount">${cost.type === 'percentage' ? cost.amount + '%' : formatCurrency(cost.amount)}</span>
             <button onclick="removeAdditionalCost(${index})" class="remove-btn">Hapus</button>
         </div>
     `).join('');
@@ -788,7 +798,7 @@ function renderOrders() {
                                 <input type="checkbox" 
                                        ${quantity > 0 ? 'checked' : ''} 
                                        onchange="toggleOrder('${participant}', ${index})">
-                                ${item.name}
+                                ${item.name} - ${formatCurrency(item.price)}
                             </label>
                             ${quantity > 0 ? `
                                 <div class="quantity-controls">
@@ -809,6 +819,11 @@ function renderOrders() {
 function calculateSplit() {
     if (participants.length === 0 || menuItems.length === 0) {
         document.getElementById('results').innerHTML = '<p class="empty-state">Tambahkan peserta dan menu terlebih dahulu</p>';
+        // Hide action buttons
+        const actionButtons = document.getElementById('actionButtons');
+        if (actionButtons) {
+            actionButtons.style.display = 'none';
+        }
         return;
     }
     
@@ -825,6 +840,11 @@ function calculateSplit() {
     
     if (totalSubtotal === 0) {
         document.getElementById('results').innerHTML = '<p class="empty-state">Belum ada pesanan</p>';
+        // Hide action buttons
+        const actionButtons = document.getElementById('actionButtons');
+        if (actionButtons) {
+            actionButtons.style.display = 'none';
+        }
         return;
     }
     
@@ -894,8 +914,8 @@ function displayResults(results, summary) {
             <h3>${result.participant}</h3>
             <div class="result-details">
                 <div class="amount-breakdown">
-                    <span>Makanan: Rp ${result.originalAmount.toLocaleString('id-ID')}</span>
-                    <span>Total: Rp ${result.adjustedAmount.toLocaleString('id-ID')}</span>
+                    <span>Makanan: ${formatCurrency(result.originalAmount)}</span>
+                    <span>Total: ${formatCurrency(result.adjustedAmount)}</span>
                 </div>
             </div>
         </div>
@@ -903,11 +923,11 @@ function displayResults(results, summary) {
     
     const summaryHTML = `
         <div class="total-summary">
-            <h3>Grand Total: Rp ${summary.totalBill.toLocaleString('id-ID')}</h3>
+            <h3>Grand Total: ${formatCurrency(summary.totalBill)}</h3>
             <div class="summary-breakdown">
-                <p>Subtotal: Rp ${summary.totalSubtotal.toLocaleString('id-ID')}</p>
-                <p>Biaya Tambahan: Rp ${summary.totalAdditionalCosts.toLocaleString('id-ID')}</p>
-                <p>Diskon: -Rp ${summary.totalDiscount.toLocaleString('id-ID')}</p>
+                <p>Subtotal: ${formatCurrency(summary.totalSubtotal)}</p>
+                <p>Biaya Tambahan: ${formatCurrency(summary.totalAdditionalCosts)}</p>
+                <p>Diskon: -${formatCurrency(summary.totalDiscount)}</p>
             </div>
         </div>
     `;
@@ -931,6 +951,12 @@ function displayResults(results, summary) {
     `;
     
     container.innerHTML = resultsHTML + summaryHTML + factorHTML;
+    
+    // Show action buttons
+    const actionButtons = document.getElementById('actionButtons');
+    if (actionButtons) {
+        actionButtons.style.display = 'flex';
+    }
 }
 
 // Render all components
@@ -1144,3 +1170,1014 @@ window.addEventListener('load', () => {
     console.log('InoBill PWA: Page loaded');
     // Additional initialization if needed
 });
+
+// Print Bill Function
+function printBill() {
+    if (participants.length === 0) {
+        showError('Error', 'Belum ada peserta yang ditambahkan');
+        return;
+    }
+
+    // Create compact print content
+    const printContent = generateCompactBillContent();
+    
+    // Create new window for printing
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>InoBill - Split Bill Receipt</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    line-height: 1.3;
+                    color: #333;
+                    background: white;
+                    padding: 10px;
+                    font-size: 12px;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 15px;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #0174BE;
+                }
+                .header h1 {
+                    color: #0174BE;
+                    margin: 0;
+                    font-size: 20px;
+                }
+                .header p {
+                    color: #666;
+                    margin: 2px 0 0 0;
+                    font-size: 11px;
+                }
+                .bill-info {
+                    background: #f8fafc;
+                    padding: 8px;
+                    border-radius: 4px;
+                    margin-bottom: 10px;
+                    border-left: 3px solid #0174BE;
+                    font-size: 11px;
+                }
+                .bill-info p {
+                    margin: 2px 0;
+                }
+                .participant-section {
+                    margin-bottom: 15px;
+                    page-break-inside: avoid;
+                }
+                .participant-header {
+                    background: #0174BE;
+                    color: white;
+                    padding: 6px 10px;
+                    border-radius: 4px 4px 0 0;
+                    font-weight: 600;
+                    font-size: 12px;
+                }
+                .participant-details {
+                    border: 1px solid #e5e7eb;
+                    border-top: none;
+                    border-radius: 0 0 4px 4px;
+                    padding: 8px;
+                }
+                .order-item {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 3px 0;
+                    border-bottom: 1px solid #f3f4f6;
+                    font-size: 11px;
+                }
+                .order-item:last-child {
+                    border-bottom: none;
+                }
+                .order-name {
+                    font-weight: 500;
+                }
+                .order-price {
+                    color: #0174BE;
+                    font-weight: 600;
+                }
+                .total-amount {
+                    background: #FFC436;
+                    color: #0C356A;
+                    padding: 6px 10px;
+                    border-radius: 4px;
+                    text-align: center;
+                    font-weight: 700;
+                    font-size: 14px;
+                    margin-top: 8px;
+                }
+                .summary-section {
+                    background: #f9fafb;
+                    padding: 10px;
+                    border-radius: 4px;
+                    margin-top: 10px;
+                    font-size: 11px;
+                }
+                .summary-item {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 3px 0;
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                .summary-item:last-child {
+                    border-bottom: none;
+                    font-weight: 700;
+                    font-size: 12px;
+                    color: #0174BE;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 15px;
+                    padding-top: 10px;
+                    border-top: 1px solid #e5e7eb;
+                    color: #666;
+                    font-size: 10px;
+                }
+                .bill-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                    font-size: 10px;
+                }
+                .bill-table th,
+                .bill-table td {
+                    border: 1px solid #ddd;
+                    padding: 4px 6px;
+                    text-align: left;
+                    vertical-align: top;
+                }
+                .bill-table th {
+                    background-color: #0174BE;
+                    color: white;
+                    font-weight: 600;
+                    text-align: center;
+                }
+                .bill-table td {
+                    background-color: white;
+                }
+                .bill-table tr:nth-child(even) td {
+                    background-color: #f9f9f9;
+                }
+                .bill-table td:first-child {
+                    font-weight: 500;
+                    background-color: #f0f8ff;
+                }
+                .bill-table td:nth-child(5),
+                .bill-table td:nth-child(7) {
+                    text-align: right;
+                    font-weight: 500;
+                }
+                .bill-table td:nth-child(3),
+                .bill-table td:nth-child(6) {
+                    text-align: center;
+                }
+                @media print {
+                    body { margin: 0; padding: 8px; }
+                    .no-print { display: none; }
+                    @page { margin: 0.5in; }
+                    .bill-table { page-break-inside: avoid; }
+                    .bill-table th,
+                    .bill-table td { font-size: 9px; padding: 2px 4px; }
+                }
+            </style>
+        </head>
+        <body>
+            ${printContent}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Wait for content to load then print
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+    
+    showNotification('Bill berhasil dicetak!', 'success');
+}
+
+// Share Bill Function
+function shareBill() {
+    if (participants.length === 0) {
+        showError('Error', 'Belum ada peserta yang ditambahkan');
+        return;
+    }
+
+    // Direct share as URL
+    shareAsUrl();
+}
+
+// Share as Text
+function shareAsText() {
+    const shareText = generateShareText();
+    const shareUrl = window.location.href;
+    
+    if (navigator.share) {
+        // Use native share API if available
+        navigator.share({
+            title: 'InoBill - Split Bill Receipt',
+            text: shareText,
+            url: shareUrl
+        }).then(() => {
+            showNotification('Bill berhasil dibagikan!', 'success');
+        }).catch((error) => {
+            console.log('Error sharing:', error);
+            fallbackShare(shareText, shareUrl);
+        });
+    } else {
+        // Fallback to copy to clipboard
+        fallbackShare(shareText, shareUrl);
+    }
+}
+
+// Share as Link
+function shareAsLink() {
+    // Show options for link sharing
+    Swal.fire({
+        title: '🔗 Bagikan sebagai Link',
+        html: `
+            <div style="text-align: left; margin: 20px 0;">
+                <p style="margin-bottom: 15px; font-size: 16px; color: #374151;">
+                    Pilih cara membagikan link:
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button id="share-url-btn" class="share-option-btn" style="
+                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 20px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        text-align: left;
+                    ">
+                        🌐 Bagikan sebagai URL
+                    </button>
+                    <button id="share-json-btn" class="share-option-btn" style="
+                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 20px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        text-align: left;
+                    ">
+                        📄 Bagikan sebagai JSON File
+                    </button>
+                </div>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCancelButton: true,
+        cancelButtonText: 'Batal',
+        customClass: {
+            popup: 'swal2-popup-custom'
+        }
+    });
+    
+    // Handle button clicks after modal is shown
+    setTimeout(() => {
+        const urlBtn = document.getElementById('share-url-btn');
+        const jsonBtn = document.getElementById('share-json-btn');
+        
+        if (urlBtn) {
+            urlBtn.addEventListener('click', () => {
+                Swal.close();
+                shareAsUrl();
+            });
+        }
+        
+        if (jsonBtn) {
+            jsonBtn.addEventListener('click', () => {
+                Swal.close();
+                shareAsJson();
+            });
+        }
+    }, 100);
+}
+
+// Share as URL (existing method)
+function shareAsUrl() {
+    const shareUrl = generateShareableLink();
+    const shareText = `🍽️ InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
+    
+    if (navigator.share) {
+        // Use native share API if available
+        navigator.share({
+            title: 'InoBill - Split Bill Receipt',
+            text: shareText,
+            url: shareUrl
+        }).then(() => {
+            showNotification('Link bill berhasil dibagikan!', 'success');
+        }).catch((error) => {
+            console.log('Error sharing:', error);
+            fallbackShare(shareText, shareUrl);
+        });
+    } else {
+        // Fallback to copy to clipboard
+        fallbackShare(shareText, shareUrl);
+    }
+}
+
+// Share as JSON File
+function shareAsJson() {
+    const billData = calculateBillData();
+    
+    if (billData.results.length === 0) {
+        showError('Error', 'Belum ada data untuk dibagikan');
+        return;
+    }
+    
+    // Create comprehensive data object
+    const shareData = {
+        app: "InoBill PWA",
+        version: "1.0.0",
+        created: new Date().toISOString(),
+        createdBy: "InoTechno",
+        data: {
+            participants: participants,
+            menuItems: menuItems,
+            additionalCosts: additionalCosts,
+            orders: orders,
+            discount: discount,
+            results: billData.results,
+            summary: billData.summary
+        }
+    };
+    
+    // Create JSON file
+    const jsonContent = JSON.stringify(shareData, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // Generate filename with timestamp
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `inobill-receipt-${timestamp}.json`;
+    
+    // Create download link
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    // Show success message with instructions
+    Swal.fire({
+        title: '✅ JSON File Berhasil Dibuat!',
+        html: `
+            <div style="text-align: left; margin: 20px 0;">
+                <p style="margin-bottom: 15px; font-size: 16px; color: #374151;">
+                    File JSON telah didownload dengan nama: <strong>${filename}</strong>
+                </p>
+                <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p style="margin: 0; font-weight: 600; color: #0174BE; margin-bottom: 10px;">📋 Cara menggunakan file JSON:</p>
+                    <ol style="margin: 0; padding-left: 20px; color: #6b7280;">
+                        <li>Bagikan file JSON ke orang lain</li>
+                        <li>Buka InoBill PWA</li>
+                        <li>Klik tombol "Import JSON" di bagian atas</li>
+                        <li>Pilih file JSON yang dibagikan</li>
+                        <li>Data akan otomatis dimuat</li>
+                    </ol>
+                </div>
+                <p style="margin: 0; font-size: 14px; color: #6b7280;">
+                    💡 File JSON berisi semua data bill yang bisa dibuka di InoBill PWA
+                </p>
+            </div>
+        `,
+        icon: 'success',
+        confirmButtonText: 'Mengerti',
+        confirmButtonColor: '#0174BE'
+    });
+    
+    showNotification('File JSON berhasil dibuat dan didownload!', 'success');
+}
+
+// Fallback Share Function
+function fallbackShare(shareText, shareUrl) {
+    const fullText = `${shareText}\n\nLihat detail lengkap di: ${shareUrl}`;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(fullText).then(() => {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Bill telah disalin ke clipboard. Anda bisa paste di aplikasi lain.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        }).catch(() => {
+            showError('Error', 'Gagal menyalin ke clipboard');
+        });
+    } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = fullText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Bill telah disalin ke clipboard. Anda bisa paste di aplikasi lain.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        } catch (err) {
+            showError('Error', 'Gagal menyalin ke clipboard');
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+// Download Bill Function
+function downloadBill() {
+    if (participants.length === 0) {
+        showError('Error', 'Belum ada peserta yang ditambahkan');
+        return;
+    }
+
+    // Direct download as JSON
+    shareAsJson();
+}
+
+// Generate Bill Content for Print/Share
+function generateBillContent() {
+    const currentDate = new Date().toLocaleDateString('id-ID', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Calculate the same data as displayed in UI
+    const billData = calculateBillData();
+    
+    let content = `
+        <div class="header">
+            <h1>🍽️ InoBill</h1>
+            <p>Split Bill Calculator - Dibuat oleh InoTechno</p>
+        </div>
+        
+        <div class="bill-info">
+            <p><strong>Tanggal:</strong> ${currentDate}</p>
+            <p><strong>Total Peserta:</strong> ${participants.length} orang</p>
+            <p><strong>Total Menu:</strong> ${menuItems.length} item</p>
+        </div>
+    `;
+    
+    // Add participant details using the same calculation as UI
+    billData.results.forEach(result => {
+        content += `
+            <div class="participant-section">
+                <div class="participant-header">
+                    👤 ${result.participant}
+                </div>
+                <div class="participant-details">
+        `;
+        
+        // Add ordered items
+        const participantOrders = orders[result.participant] || [];
+        if (Array.isArray(participantOrders)) {
+            participantOrders.forEach(order => {
+                const menuItem = menuItems[order.menuIndex];
+                if (menuItem && order.quantity > 0) {
+                    const itemTotal = menuItem.price * order.quantity;
+                    content += `
+                        <div class="order-item">
+                            <span class="order-name">${menuItem.name} (${order.quantity}x)</span>
+                            <span class="order-price">${formatCurrency(itemTotal)}</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        // Add factor calculation info
+        content += `
+            <div class="order-item" style="border-top: 2px solid #e5e7eb; margin-top: 10px; padding-top: 10px;">
+                <span class="order-name">Subtotal Makanan:</span>
+                <span class="order-price">${formatCurrency(result.originalAmount)}</span>
+            </div>
+            <div class="order-item">
+                <span class="order-name">Faktor Pembagi (${billData.summary.factor.toFixed(4)}):</span>
+                <span class="order-price">× ${billData.summary.factor.toFixed(4)}</span>
+            </div>
+        `;
+        
+        content += `
+                    <div class="total-amount">
+                        Total: ${formatCurrency(result.adjustedAmount)}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Add summary using the same data as UI
+    content += `
+        <div class="summary-section">
+            <h3 style="margin-top: 0; color: #0174BE;">📊 Ringkasan Total</h3>
+            <div class="summary-item">
+                <span>Total Menu:</span>
+                <span>${formatCurrency(billData.summary.totalSubtotal)}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Biaya Tambahan:</span>
+                <span>${formatCurrency(billData.summary.totalAdditionalCosts)}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Diskon:</span>
+                <span style="color: #10b981;">-${formatCurrency(billData.summary.totalDiscount)}</span>
+            </div>
+            <div class="summary-item">
+                <span><strong>Grand Total:</strong></span>
+                <span><strong>${formatCurrency(billData.summary.totalBill)}</strong></span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Dibuat dengan ❤️ oleh <strong>InoTechno</strong></p>
+            <p>InoBill PWA - Pembagi Tagihan Adil & Mudah</p>
+            <p>Website: <a href="https://inotechno.my.id" target="_blank">inotechno.my.id</a></p>
+        </div>
+    `;
+    
+    return content;
+}
+
+// Generate Compact Bill Content for Print
+function generateCompactBillContent() {
+    const currentDate = new Date().toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Calculate the same data as displayed in UI
+    const billData = calculateBillData();
+    
+    let content = `
+        <div class="header">
+            <h1>🍽️ InoBill</h1>
+            <p>Split Bill Calculator - InoTechno</p>
+        </div>
+        
+        <div class="bill-info">
+            <p><strong>Tanggal:</strong> ${currentDate} | <strong>Peserta:</strong> ${participants.length} | <strong>Menu:</strong> ${menuItems.length}</p>
+        </div>
+    `;
+    
+    // Create table for participant details
+    content += `
+        <table class="bill-table">
+            <thead>
+                <tr>
+                    <th>Peserta</th>
+                    <th>Menu</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Subtotal</th>
+                    <th>Faktor</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Add participant details in table format
+    billData.results.forEach(result => {
+        const participantOrders = orders[result.participant] || [];
+        let hasOrders = false;
+        
+        if (Array.isArray(participantOrders)) {
+            participantOrders.forEach((order, index) => {
+                const menuItem = menuItems[order.menuIndex];
+                if (menuItem && order.quantity > 0) {
+                    const itemTotal = menuItem.price * order.quantity;
+                    const adjustedTotal = itemTotal * billData.summary.factor;
+                    
+                    content += `
+                        <tr>
+                            <td>${index === 0 ? result.participant : ''}</td>
+                            <td>${menuItem.name}</td>
+                            <td>${order.quantity}</td>
+                            <td>${formatCurrency(menuItem.price)}</td>
+                            <td>${formatCurrency(itemTotal)}</td>
+                            <td>${index === 0 ? billData.summary.factor.toFixed(4) : ''}</td>
+                            <td>${formatCurrency(adjustedTotal)}</td>
+                        </tr>
+                    `;
+                    hasOrders = true;
+                }
+            });
+        }
+        
+        // If no orders, show participant with zero total
+        if (!hasOrders) {
+            content += `
+                <tr>
+                    <td>${result.participant}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>0</td>
+                    <td>${billData.summary.factor.toFixed(4)}</td>
+                    <td>0</td>
+                </tr>
+            `;
+        }
+    });
+    
+    content += `
+            </tbody>
+        </table>
+    `;
+    
+    // Add compact summary section
+    content += `
+        <div class="summary-section">
+            <h3 style="margin-bottom: 10px; color: #0174BE; font-size: 14px;">Ringkasan</h3>
+            <div class="summary-item">
+                <span>Total Menu:</span>
+                <span>${formatCurrency(billData.summary.totalSubtotal)}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Biaya Tambahan:</span>
+                <span>${formatCurrency(billData.summary.totalAdditionalCosts)}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Diskon:</span>
+                <span style="color: #10b981;">-${formatCurrency(billData.summary.totalDiscount)}</span>
+            </div>
+            <div class="summary-item">
+                <span><strong>Grand Total:</strong></span>
+                <span><strong>${formatCurrency(billData.summary.totalBill)}</strong></span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>InoBill PWA - InoTechno</p>
+        </div>
+    `;
+    
+    return content;
+}
+
+// Calculate Bill Data (same logic as calculateSplit)
+function calculateBillData() {
+    if (participants.length === 0 || menuItems.length === 0) {
+        return { results: [], summary: {} };
+    }
+    
+    // Calculate total subtotal
+    let totalSubtotal = 0;
+    Object.keys(orders).forEach(participant => {
+        const participantOrders = orders[participant] || [];
+        if (Array.isArray(participantOrders)) {
+            participantOrders.forEach(order => {
+                const menuItem = menuItems[order.menuIndex];
+                if (menuItem) {
+                    totalSubtotal += menuItem.price * order.quantity;
+                }
+            });
+        }
+    });
+    
+    if (totalSubtotal === 0) {
+        return { results: [], summary: {} };
+    }
+    
+    // Calculate total additional costs
+    let totalAdditionalCosts = 0;
+    additionalCosts.forEach(cost => {
+        if (cost.type === 'fixed') {
+            totalAdditionalCosts += cost.amount;
+        } else if (cost.type === 'percentage') {
+            totalAdditionalCosts += (totalSubtotal * cost.amount / 100);
+        }
+    });
+    
+    // Calculate total discount
+    let totalDiscount = 0;
+    if (discount.amount > 0) {
+        totalDiscount = discount.amount;
+    } else if (discount.percentage > 0) {
+        if (discount.type === 'menu') {
+            totalDiscount = totalSubtotal * discount.percentage / 100;
+        } else {
+            totalDiscount = (totalSubtotal + totalAdditionalCosts) * discount.percentage / 100;
+        }
+    }
+    
+    // Calculate factor
+    const factor = (totalSubtotal + totalAdditionalCosts - totalDiscount) / totalSubtotal;
+    
+    // Calculate results for each participant
+    const results = [];
+    Object.keys(orders).forEach(participant => {
+        let participantSubtotal = 0;
+        const participantOrders = orders[participant] || [];
+        if (Array.isArray(participantOrders)) {
+            participantOrders.forEach(order => {
+                const menuItem = menuItems[order.menuIndex];
+                if (menuItem) {
+                    participantSubtotal += menuItem.price * order.quantity;
+                }
+            });
+        }
+        
+        if (participantSubtotal > 0) {
+            const adjustedAmount = participantSubtotal * factor;
+            results.push({
+                participant,
+                originalAmount: participantSubtotal,
+                adjustedAmount: adjustedAmount
+            });
+        }
+    });
+    
+    return {
+        results,
+        summary: {
+            totalSubtotal,
+            totalAdditionalCosts,
+            totalDiscount,
+            factor,
+            totalBill: totalSubtotal + totalAdditionalCosts - totalDiscount
+        }
+    };
+}
+
+// Generate Share Text
+function generateShareText() {
+    const currentDate = new Date().toLocaleDateString('id-ID');
+    const billData = calculateBillData();
+    
+    if (billData.results.length === 0) {
+        return 'Belum ada data untuk dibagikan';
+    }
+    
+    let text = `🍽️ *InoBill - Split Bill Receipt*\n`;
+    text += `📅 ${currentDate}\n\n`;
+    text += `👥 *Peserta (${billData.results.length} orang):*\n`;
+    
+    billData.results.forEach(result => {
+        text += `• ${result.participant}: ${formatCurrency(result.adjustedAmount)}\n`;
+    });
+    
+    text += `\n💰 *Grand Total: ${formatCurrency(billData.summary.totalBill)}*\n\n`;
+    text += `Dibuat dengan InoBill PWA oleh InoTechno`;
+    
+    return text;
+}
+
+// Generate Shareable Link
+function generateShareableLink() {
+    const billData = calculateBillData();
+    
+    if (billData.results.length === 0) {
+        return window.location.href;
+    }
+    
+    // Create data object for sharing
+    const shareData = {
+        participants: participants,
+        menuItems: menuItems,
+        additionalCosts: additionalCosts,
+        orders: orders,
+        discount: discount,
+        results: billData.results,
+        summary: billData.summary,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Encode data to base64
+    const encodedData = btoa(JSON.stringify(shareData));
+    
+    // Create shareable URL
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?bill=${encodedData}`;
+    
+    return shareUrl;
+}
+
+// Load Data from URL
+function loadDataFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const billData = urlParams.get('bill');
+    
+    if (billData) {
+        try {
+            // Decode data from base64
+            const decodedData = JSON.parse(atob(billData));
+            
+            // Validate data structure
+            if (decodedData.participants && decodedData.menuItems && decodedData.orders) {
+                // Load the data
+                participants = decodedData.participants || [];
+                menuItems = decodedData.menuItems || [];
+                additionalCosts = decodedData.additionalCosts || [];
+                orders = decodedData.orders || {};
+                discount = decodedData.discount || { amount: 0, percentage: 0, type: 'menu' };
+                
+                // Re-render everything
+                renderAll();
+                
+                // Show notification
+                showNotification('Data bill berhasil dimuat dari link!', 'success');
+                
+                // Clear URL parameters to avoid reloading
+                const newUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+                
+                return true;
+            }
+        } catch (error) {
+            console.error('Error loading data from URL:', error);
+            showError('Error', 'Gagal memuat data dari link');
+        }
+    }
+    
+    return false;
+}
+
+// Import JSON File
+function importJsonFile() {
+    // Create file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.style.display = 'none';
+    
+    // Add to document
+    document.body.appendChild(input);
+    
+    // Handle file selection
+    input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        
+        if (!file) {
+            document.body.removeChild(input);
+            return;
+        }
+        
+        // Validate file type
+        if (!file.name.toLowerCase().endsWith('.json')) {
+            showError('Error', 'File harus berformat JSON');
+            document.body.removeChild(input);
+            return;
+        }
+        
+        // Read file
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const jsonData = JSON.parse(e.target.result);
+                
+                // Validate JSON structure
+                if (!jsonData.app || jsonData.app !== 'InoBill PWA') {
+                    showError('Error', 'File JSON tidak valid untuk InoBill PWA');
+                    document.body.removeChild(input);
+                    return;
+                }
+                
+                if (!jsonData.data) {
+                    showError('Error', 'File JSON tidak berisi data yang valid');
+                    document.body.removeChild(input);
+                    return;
+                }
+                
+                // Show confirmation dialog
+                Swal.fire({
+                    title: '📁 Import Data JSON',
+                    html: `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p style="margin-bottom: 15px; font-size: 16px; color: #374151;">
+                                Apakah Anda yakin ingin mengimpor data dari file JSON?
+                            </p>
+                            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                <p style="margin: 0; font-weight: 600; color: #0174BE; margin-bottom: 10px;">📋 Data yang akan diimpor:</p>
+                                <ul style="margin: 0; padding-left: 20px; color: #6b7280;">
+                                    <li>Peserta: ${jsonData.data.participants?.length || 0} orang</li>
+                                    <li>Menu: ${jsonData.data.menuItems?.length || 0} item</li>
+                                    <li>Biaya Tambahan: ${jsonData.data.additionalCosts?.length || 0} item</li>
+                                    <li>Dibuat: ${new Date(jsonData.created).toLocaleDateString('id-ID')}</li>
+                                </ul>
+                            </div>
+                            <p style="margin: 0; font-size: 14px; color: #ef4444; font-weight: 600;">
+                                ⚠️ Data saat ini akan diganti dengan data dari file JSON!
+                            </p>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Import Data',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#0174BE',
+                    cancelButtonColor: '#6b7280',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Import the data
+                        importJsonData(jsonData.data);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+                showError('Error', 'File JSON tidak valid atau rusak');
+            }
+            
+            // Clean up
+            document.body.removeChild(input);
+        };
+        
+        reader.onerror = function() {
+            showError('Error', 'Gagal membaca file');
+            document.body.removeChild(input);
+        };
+        
+        reader.readAsText(file);
+    });
+    
+    // Trigger file selection
+    input.click();
+}
+
+// Import JSON Data
+function importJsonData(data) {
+    try {
+        // Show loading
+        Swal.fire({
+            title: 'Sedang mengimpor...',
+            text: 'Memuat data dari file JSON...',
+            icon: 'info',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        // Simulate processing time
+        setTimeout(() => {
+            // Import data
+            participants = data.participants || [];
+            menuItems = data.menuItems || [];
+            additionalCosts = data.additionalCosts || [];
+            orders = data.orders || {};
+            discount = data.discount || { amount: 0, percentage: 0, type: 'menu' };
+            
+            // Save to localStorage
+            saveData();
+            
+            // Re-render everything
+            renderAll();
+            
+            // Show success message
+            Swal.fire({
+                title: '✅ Berhasil!',
+                text: 'Data JSON berhasil diimpor dan dimuat!',
+                icon: 'success',
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            
+            showNotification('Data JSON berhasil diimpor!', 'success');
+            
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error importing data:', error);
+        showError('Error', 'Gagal mengimpor data dari file JSON');
+    }
+}
+
+// Export new functions
+window.printBill = printBill;
+window.shareBill = shareBill;
+window.downloadBill = downloadBill;
+window.shareAsText = shareAsText;
+window.shareAsLink = shareAsLink;
+window.shareAsUrl = shareAsUrl;
+window.shareAsJson = shareAsJson;
+window.importJsonFile = importJsonFile;
