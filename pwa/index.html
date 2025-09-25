@@ -9,8 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Primary Meta Tags -->
     <title>InoBill - Split Bill Calculator PWA | InoTechno</title>
@@ -79,48 +78,23 @@
     <!-- Preload critical images -->
     <link rel="preload" href="icons/logo.png" as="image">
     
-    <!-- Critical CSS inline for faster rendering -->
+    <!-- Minimal critical CSS -->
     <style>
-        /* Critical CSS for above-the-fold content */
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: #f8fafc;
-            color: #1e293b;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
-            color: white;
-            padding: 2rem 1.5rem;
-        }
-        
-        /* Fallback for slow connections */
-        @font-face {
-            font-family: 'Inter Fallback';
-            font-style: normal;
-            font-weight: 400;
-            src: local('Arial'), local('Helvetica'), local('sans-serif');
         }
     </style>
     
-    <!-- Google Analytics - Consolidated and deferred -->
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HT3JY09QXX"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-HT3JY09QXX');
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HT3JY09QXX"></script>
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
@@ -185,9 +159,8 @@
     }
     </script>
     
-    <!-- Non-critical CSS - Load asynchronously -->
-    <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="style.css"></noscript>
+    <!-- Optimized CSS loading -->
+    <link rel="stylesheet" href="style.min.css">
 </head>
 <body>
     <!-- PWA Install Banner -->
@@ -556,11 +529,11 @@
         <span class="floating-btn-text">Reset</span>
     </button>
 
-    <!-- SweetAlert2 CDN - Defer for performance -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Main scripts - Defer for faster initial load -->
-    <script src="script.js" defer></script>
-    <script src="pwa.js" defer></script>
+    <!-- Main scripts -->
+    <script src="script.min.js"></script>
+    <script src="pwa.min.js"></script>
 </body>
 </html>
