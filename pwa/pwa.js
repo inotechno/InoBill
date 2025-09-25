@@ -68,16 +68,24 @@ class InoBillPWA {
     setupInstallPrompt() {
         window.addEventListener('beforeinstallprompt', (e) => {
             console.log('InoBill PWA: Install prompt available');
-            e.preventDefault();
+            // Store the event for later use
             this.deferredPrompt = e;
             
-            // Check if banner was previously dismissed
+            // Try to show native prompt first
+            const nativePromptShown = localStorage.getItem('inobill-native-prompt-shown');
+            if (!nativePromptShown) {
+                setTimeout(() => {
+                    this.showNativeInstallPrompt();
+                    localStorage.setItem('inobill-native-prompt-shown', 'true');
+                }, 3000);
+            }
+            
+            // Show custom banner as fallback
             const bannerDismissed = localStorage.getItem('inobill-banner-dismissed');
             if (!bannerDismissed) {
-                // Show banner after a short delay
                 setTimeout(() => {
                     this.showInstallBanner();
-                }, 2000);
+                }, 8000); // Show after native prompt attempt
             }
         });
         
@@ -242,20 +250,35 @@ class InoBillPWA {
         }
         
         try {
+            // Show the install prompt
             this.deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
             const { outcome } = await this.deferredPrompt.userChoice;
             
             if (outcome === 'accepted') {
                 console.log('InoBill PWA: User accepted install prompt');
+                this.showInstallSuccessMessage();
             } else {
                 console.log('InoBill PWA: User dismissed install prompt');
             }
             
+            // Clear the deferredPrompt so it can only be used once
             this.deferredPrompt = null;
             this.hideInstallBanner();
             
         } catch (error) {
             console.error('InoBill PWA: Install failed', error);
+            this.showInstallError();
+        }
+    }
+    
+    // Show browser's native install prompt
+    showNativeInstallPrompt() {
+        if (this.deferredPrompt) {
+            this.deferredPrompt.prompt();
+        } else {
+            console.log('InoBill PWA: No deferred prompt available');
             this.showInstallError();
         }
     }
@@ -445,12 +468,29 @@ class InoBillPWA {
         console.log('InoBill PWA: Banner dismiss status reset');
     }
     
+    // Reset all install prompt status (for testing)
+    resetAllInstallStatus() {
+        localStorage.removeItem('inobill-banner-dismissed');
+        localStorage.removeItem('inobill-native-prompt-shown');
+        console.log('InoBill PWA: All install status reset');
+    }
+    
     // Force show install banner (for testing)
     forceShowInstallBanner() {
         if (this.deferredPrompt) {
             this.showInstallBanner();
         } else {
             console.log('InoBill PWA: No deferred prompt available');
+        }
+    }
+    
+    // Auto show native install prompt (alternative approach)
+    autoShowNativePrompt() {
+        if (this.deferredPrompt) {
+            // Show native prompt immediately
+            this.deferredPrompt.prompt();
+        } else {
+            console.log('InoBill PWA: No deferred prompt available for auto show');
         }
     }
 }
