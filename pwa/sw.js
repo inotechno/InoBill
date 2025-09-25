@@ -1,9 +1,9 @@
 // InoBill Service Worker
-// Version: 1.0.0
+// Version: 1.1.0
 // Cache Name
-const CACHE_NAME = 'inobill-v1.0.0';
-const STATIC_CACHE = 'inobill-static-v1.0.0';
-const DYNAMIC_CACHE = 'inobill-dynamic-v1.0.0';
+const CACHE_NAME = 'inobill-v1.1.0';
+const STATIC_CACHE = 'inobill-static-v1.1.0';
+const DYNAMIC_CACHE = 'inobill-dynamic-v1.1.0';
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
@@ -11,11 +11,13 @@ const STATIC_FILES = [
   '/index.html',
   '/style.css',
   '/script.js',
-  '/icon.png',
+  '/pwa.js',
+  '/icons/logo.png',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
-  '/offline.html',
-  '/manifest.json'
+  '/manifest.json',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
+  'https://cdn.jsdelivr.net/npm/sweetalert2@11'
 ];
 
 // Install Event - Cache static files
