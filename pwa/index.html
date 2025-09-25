@@ -54,8 +54,8 @@
     <meta property="twitter:image" content="https://inobill.inotechno.my.id/pwa/icons/icon-512x512.png">
     
     <!-- Additional SEO Meta Tags -->
-    <meta name="theme-color" content="#0174BE">
-    <meta name="msapplication-TileColor" content="#0174BE">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="msapplication-TileColor" content="#1e293b">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://inobill.inotechno.my.id/pwa/">
@@ -64,14 +64,32 @@
     <link rel="manifest" href="manifest.json">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="icons/icon-192x192.png">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <link rel="shortcut icon" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" href="icons/logo.png">
+    <link rel="apple-touch-icon" href="icons/logo.png">
+    <link rel="shortcut icon" href="icons/logo.png">
     
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Fallback font loading -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        /* Ensure font is loaded */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+        }
+        
+        /* Fallback for slow connections */
+        @font-face {
+            font-family: 'Inter Fallback';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Arial'), local('Helvetica'), local('sans-serif');
+        }
+    </style>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ML38NHRJ86"></script>
@@ -114,16 +132,16 @@
         "inLanguage": "id",
         "isAccessibleForFree": true,
         "datePublished": "2024-01-01",
-        "dateModified": "2024-12-11",
-        "version": "1.0.0",
-        "softwareVersion": "1.0.0",
+        "dateModified": "2024-12-25",
+        "version": "1.1.0",
+        "softwareVersion": "1.1.0",
         "browserRequirements": "Requires JavaScript. Requires HTML5. PWA compatible.",
         "memoryRequirements": "No specific memory requirements",
         "storageRequirements": "Minimal storage for offline cache",
         "permissions": "No special permissions required",
-        "screenshot": "https://inobill.inotechno.my.id/pwa/screenshots/desktop-screenshot.png",
+        "screenshot": "https://inobill.inotechno.my.id/pwa/screenshots/Macbook-Air-localhost.png",
         "softwareHelp": "https://inobill.inotechno.my.id/pwa/help",
-        "releaseNotes": "Initial release of InoBill PWA - A fair and easy split bill calculator with offline support"
+        "releaseNotes": "Version 1.1.0 - Enhanced UI with custom logo, improved header design, card collapse functionality, and better mobile responsiveness"
     }
     </script>
     
@@ -191,129 +209,312 @@
 
     <div class="container">
         <header class="header">
-            <h1>🍽️ InoBill PWA</h1>
-            <p>Hitung pembagian tagihan yang adil untuk setiap peserta</p>
-            <div class="pwa-badges">
-                <span class="pwa-badge">📱 PWA</span>
-                <span class="pwa-badge">⚡ Offline</span>
-                <span class="pwa-badge">🚀 Installable</span>
-            </div>
-            <div class="header-actions">
-                <button onclick="importJsonFile()" class="btn btn-secondary btn-sm">
-                    <span class="btn-icon">📁</span>
-                    <span class="btn-text">Import JSON</span>
-                </button>
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <img src="icons/logo.png" alt="InoBill Logo" class="logo-img">
+                    </div>
+                    <div class="title-section">
+                        <h1>InoBill</h1>
+                        <p>Smart Bill Splitter - Fair & Easy</p>
+                        <div class="header-features">
+                            <span class="feature-tag">💡 Real-time</span>
+                            <span class="feature-tag">📱 PWA</span>
+                            <span class="feature-tag">⚡ Fast</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button onclick="toggleTheme()" class="btn-icon" title="Toggle Theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <button onclick="importJsonFile()" class="btn-icon" title="Import Data">
+                        <span>📁</span>
+                    </button>
+                </div>
             </div>
         </header>
 
         <main class="content">
-            <!-- Two Column Layout for most sections -->
-            <div class="sections-grid">
-                <!-- Participants Section -->
-                <section class="section">
-                    <h2>👥 Peserta</h2>
-                    <div class="input-group">
-                        <input type="text" id="participantName" placeholder="Nama peserta" maxlength="50">
-                        <button onclick="addParticipant()" class="btn">Tambah</button>
-                    </div>
-                    <div id="participantsList" class="participants-list"></div>
-                </section>
-
-                <!-- Menu Section -->
-                <section class="section">
-                    <h2>🍽️ Menu & Harga</h2>
-                    <div class="input-group">
-                        <input type="text" id="menuName" placeholder="Nama menu" maxlength="100">
-                        <input type="number" id="menuPrice" placeholder="Harga" min="0" step="100">
-                        <button onclick="addMenuItem()" class="btn">Tambah</button>
-                    </div>
-                    <div id="menuList" class="menu-list"></div>
-                </section>
-
-                <!-- Additional Costs Section -->
-                <section class="section">
-                    <h2>💰 Biaya Tambahan</h2>
-                    <div class="input-group">
-                        <input type="text" id="additionalCostName" placeholder="Nama biaya" maxlength="100">
-                        <input type="number" id="additionalCostAmount" placeholder="Jumlah" min="0" step="100">
-                        <div class="custom-select">
-                            <div class="select-trigger" onclick="toggleSelect('additionalCostType')">
-                                <span class="select-value" id="additionalCostTypeValue">Tetap (Rp)</span>
-                                <span class="select-arrow">▼</span>
-                            </div>
-                            <div class="select-options" id="additionalCostTypeOptions">
-                                <div class="select-option" data-value="fixed" onclick="selectOption('additionalCostType', 'fixed', 'Tetap (Rp)')">Tetap (Rp)</div>
-                                <div class="select-option" data-value="percentage" onclick="selectOption('additionalCostType', 'percentage', 'Persentase (%)')">Persentase (%)</div>
-                            </div>
-                        </div>
-                        <button onclick="addAdditionalCost()" class="btn">Tambah Biaya</button>
-                    </div>
-                    <div id="additionalCostsList" class="additional-costs"></div>
-                </section>
-
-                <!-- Discount Section -->
-                <section class="section">
-                    <h2>🎯 Diskon</h2>
-                    <div class="discount-fields">
-                        <div class="input-group">
-                            <label for="discountAmount">Diskon (Rp)</label>
-                            <input type="number" id="discountAmount" placeholder="0" min="0" step="100">
-                        </div>
-                        <div class="input-group">
-                            <label for="discountPercentage">Diskon (%)</label>
-                            <input type="number" id="discountPercentage" placeholder="0" min="0" max="100" step="1">
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <div class="custom-select">
-                            <div class="select-trigger" onclick="toggleSelect('discountType')">
-                                <span class="select-value" id="discountTypeValue">Setelah Menu</span>
-                                <span class="select-arrow">▼</span>
-                            </div>
-                            <div class="select-options" id="discountTypeOptions">
-                                <div class="select-option" data-value="menu" onclick="selectOption('discountType', 'menu', 'Setelah Menu')">Setelah Menu</div>
-                                <div class="select-option" data-value="total-bill" onclick="selectOption('discountType', 'total-bill', 'Dari Total Semua')">Dari Total Semua</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="discountInfo" class="info-message" style="display: none;"></div>
-                </section>
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button onclick="showAddParticipantModal()" class="quick-action-btn">
+                    <span class="action-icon">👥</span>
+                    <span class="action-text">Add People</span>
+                </button>
+                <button onclick="showAddMenuModal()" class="quick-action-btn">
+                    <span class="action-icon">🍽️</span>
+                    <span class="action-text">Add Menu</span>
+                </button>
+                <button onclick="showAddCostModal()" class="quick-action-btn">
+                    <span class="action-icon">💰</span>
+                    <span class="action-text">Add Cost</span>
+                </button>
+                <button onclick="showDiscountModal()" class="quick-action-btn">
+                    <span class="action-icon">🎯</span>
+                    <span class="action-text">Discount</span>
+                </button>
             </div>
 
-            <!-- Orders Section (Full Width) -->
-            <section class="section full-width">
-                <h2>📋 Pesanan</h2>
-                <div id="ordersList" class="orders-grid"></div>
-            </section>
+            <!-- Dashboard Cards -->
+            <div class="dashboard">
+                <!-- Participants Card -->
+                <div class="card">
+                    <div class="card-header" onclick="toggleCardCollapse('participantsCard')">
+                        <h3>👥 Participants</h3>
+                        <div class="card-actions">
+                            <button onclick="showAddParticipantModal(); event.stopPropagation();" class="btn-add">+</button>
+                            <button class="btn-collapse">
+                                <span class="collapse-icon">▼</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content" id="participantsCard">
+                        <div id="participantsList" class="list-container">
+                            <div class="empty-state">
+                                <span class="empty-icon">👥</span>
+                                <p>No participants yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Card -->
+                <div class="card">
+                    <div class="card-header" onclick="toggleCardCollapse('menuCard')">
+                        <h3>🍽️ Menu Items</h3>
+                        <div class="card-actions">
+                            <button onclick="showAddMenuModal(); event.stopPropagation();" class="btn-add">+</button>
+                            <button class="btn-collapse">
+                                <span class="collapse-icon">▼</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content" id="menuCard">
+                        <div id="menuList" class="list-container">
+                            <div class="empty-state">
+                                <span class="empty-icon">🍽️</span>
+                                <p>No menu items yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Costs Card -->
+                <div class="card">
+                    <div class="card-header" onclick="toggleCardCollapse('additionalCostsCard')">
+                        <h3>💰 Additional Costs</h3>
+                        <div class="card-actions">
+                            <button onclick="showAddCostModal(); event.stopPropagation();" class="btn-add">+</button>
+                            <button class="btn-collapse">
+                                <span class="collapse-icon">▼</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content" id="additionalCostsCard">
+                        <div id="additionalCostsList" class="list-container">
+                            <div class="empty-state">
+                                <span class="empty-icon">💰</span>
+                                <p>No additional costs yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discount Card -->
+                <div class="card">
+                    <div class="card-header" onclick="toggleCardCollapse('discountCard')">
+                        <h3>🎯 Discount</h3>
+                        <div class="card-actions">
+                            <button onclick="showDiscountModal(); event.stopPropagation();" class="btn-add">+</button>
+                            <button class="btn-collapse">
+                                <span class="collapse-icon">▼</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content" id="discountCard">
+                        <div id="discountList" class="list-container">
+                            <div class="empty-state">
+                                <span class="empty-icon">🎯</span>
+                                <p>No discount applied</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Card -->
+                <div class="card full-width">
+                    <div class="card-header" onclick="toggleCardCollapse('ordersCard')">
+                        <h3>📋 Orders</h3>
+                        <div class="card-actions">
+                            <button class="btn-collapse">
+                                <span class="collapse-icon">▼</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content" id="ordersCard">
+                        <div id="ordersList" class="orders-grid">
+                            <div class="empty-state">
+                                <span class="empty-icon">📋</span>
+                                <p>Add participants and menu items to start</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button onclick="calculateSplit()" class="btn-calculate">
+                            <span class="btn-icon">🧮</span>
+                            <span class="btn-text">Calculate Bill</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Results Section -->
-            <section class="section full-width">
-                <h2>📊 Hasil Perhitungan</h2>
-                <div id="results" class="results"></div>
-                
-                <!-- Action Buttons -->
-                <div id="actionButtons" class="action-buttons" style="display: none;">
-                    <button onclick="printBill()" class="btn btn-primary">
-                        <span class="btn-icon">🖨️</span>
-                        <span class="btn-text">Cetak Bill</span>
-                    </button>
-                    <button onclick="shareBill()" class="btn btn-secondary">
-                        <span class="btn-icon">📤</span>
-                        <span class="btn-text">Bagikan</span>
-                    </button>
-                    <button onclick="downloadBill()" class="btn btn-tertiary">
-                        <span class="btn-icon">💾</span>
-                        <span class="btn-text">Download</span>
-                    </button>
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <div class="card full-width">
+                    <div class="card-header" onclick="toggleCardCollapse('resultsCard')">
+                        <h3>📊 Split Results</h3>
+                        <div class="card-actions">
+                            <button class="btn-collapse">
+                                <span class="collapse-icon">▼</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content" id="resultsCard">
+                        <div id="results" class="results-content"></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="action-buttons">
+                            <button onclick="printBill()" class="btn-action">
+                                <span>🖨️</span>
+                                <span>Print Bill</span>
+                            </button>
+                            <button onclick="shareBill()" class="btn-action">
+                                <span>📤</span>
+                                <span>Share</span>
+                            </button>
+                            <button onclick="downloadBill()" class="btn-action">
+                                <span>📄</span>
+                                <span>Download JSON</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </section>
+            </div>
         </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Participant Modal -->
+    <div id="addParticipantModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Participant</h3>
+                <button onclick="closeModalManually('addParticipantModal')" class="btn-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="participantName">Name</label>
+                    <input type="text" id="participantName" placeholder="Enter participant name" maxlength="50">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModalManually('addParticipantModal')" class="btn btn-secondary">Cancel</button>
+                <button onclick="addParticipant()" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Menu Modal -->
+    <div id="addMenuModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Menu Item</h3>
+                <button onclick="closeModalManually('addMenuModal')" class="btn-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="menuName">Item Name</label>
+                    <input type="text" id="menuName" placeholder="Enter menu item name" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="menuPrice">Price</label>
+                    <input type="number" id="menuPrice" placeholder="Enter price" min="0" step="100">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModalManually('addMenuModal')" class="btn btn-secondary">Cancel</button>
+                <button onclick="addMenuItem()" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Cost Modal -->
+    <div id="addCostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Additional Cost</h3>
+                <button onclick="closeModalManually('addCostModal')" class="btn-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="additionalCostName">Cost Name</label>
+                    <input type="text" id="additionalCostName" placeholder="e.g., Tax, Tip, Service" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="additionalCostAmount">Amount</label>
+                    <input type="number" id="additionalCostAmount" placeholder="Enter amount" min="0" step="100">
+                </div>
+                <div class="form-group">
+                    <label for="additionalCostType">Type</label>
+                    <select id="additionalCostType">
+                        <option value="fixed">Fixed Amount</option>
+                        <option value="percentage">Percentage</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModalManually('addCostModal')" class="btn btn-secondary">Cancel</button>
+                <button onclick="addAdditionalCost()" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discount Modal -->
+    <div id="discountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Set Discount</h3>
+                <button onclick="closeModalManually('discountModal')" class="btn-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="discountAmount">Discount Amount (Rp)</label>
+                    <input type="number" id="discountAmount" placeholder="0" min="0" step="100">
+                </div>
+                <div class="form-group">
+                    <label for="discountPercentage">Discount Percentage (%)</label>
+                    <input type="number" id="discountPercentage" placeholder="0" min="0" max="100" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="discountType">Apply To</label>
+                    <select id="discountType">
+                        <option value="menu">After Menu Items</option>
+                        <option value="total-bill">From Total Bill</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModalManually('discountModal')" class="btn btn-secondary">Cancel</button>
+                <button onclick="applyDiscount()" class="btn btn-primary">Apply</button>
+            </div>
+        </div>
     </div>
 
     <footer class="footer">
         <div class="footer-content">
             <p>&copy; 2024 <strong>InoTechno</strong>. All rights reserved.</p>
-            <p>InoBill PWA - Pembagi Tagihan Adil & Mudah</p>
+            <p>InoBill - Smart Bill Splitter</p>
             <div class="footer-links">
                 <a href="https://inotechno.my.id" target="_blank" rel="noopener">InoTechno</a>
                 <span>•</span>
@@ -325,7 +526,7 @@
     </footer>
 
     <!-- Floating Reset Button -->
-    <button id="floating-reset-btn" onclick="resetAllData()" class="floating-reset-btn" title="Reset semua data">
+    <button id="floating-reset-btn" onclick="resetAllData()" class="floating-reset-btn" title="Reset all data">
         <span class="floating-btn-icon">🔄</span>
         <span class="floating-btn-text">Reset</span>
     </button>
@@ -334,6 +535,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script src="script.js"></script>
-    <script src="pwa.js"></script>
+    <script src="pwa.min.js"></script>
 </body>
 </html>

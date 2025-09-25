@@ -1,0 +1,46 @@
+{
+  "name": "inobill-pwa",
+  "version": "1.1.0",
+  "description": "InoBill - Smart Bill Splitter PWA. A fair and easy split bill calculator for restaurants, cafes, and group dining.",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'No build process needed for static PWA'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "pwa",
+    "bill-splitter",
+    "calculator",
+    "restaurant",
+    "cafe",
+    "dining",
+    "split-bill",
+    "indonesia",
+    "inotechno"
+  ],
+  "author": "InoTechno",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inotechno/inobill-pwa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/inotechno/inobill-pwa/issues"
+  },
+  "homepage": "https://inobill.inotechno.my.id/pwa/",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "pwa": {
+    "name": "InoBill",
+    "short_name": "InoBill",
+    "theme_color": "#1e293b",
+    "background_color": "#1e293b",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "start_url": "/"
+  }
+}

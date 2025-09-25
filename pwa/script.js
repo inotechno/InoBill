@@ -1,21 +1,36 @@
-// InoBill PWA - Main JavaScript
-// Version: 1.0.0
+// InoBill - Modern Clean JavaScript
+// Version: 2.0.0
 
-// Global variables
+// Global State
 let participants = [];
 let menuItems = [];
 let additionalCosts = [];
 let orders = {};
 let discount = { amount: 0, percentage: 0, type: 'menu' };
+let currentTheme = localStorage.getItem('theme') || 'light';
+let lastCalculationResults = null;
 
-// Helper function to format currency without decimals
+// Helper function to format currency
 function formatCurrency(amount) {
-    return Math.round(amount).toLocaleString('id-ID');
+    if (isNaN(amount) || amount === null || amount === undefined) {
+        return 'Rp 0';
+    }
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
 }
 
-// Initialize the application
+// Helper function to format currency without decimals (legacy)
+function formatCurrencyLegacy(amount) {
+    return formatCurrency(amount);
+}
+
+// Initialize Application
 function init() {
-    console.log('InoBill PWA: Initializing...');
+    console.log('InoBill: Initializing...');
     
     // Try to load data from URL first
     const urlDataLoaded = loadDataFromUrl();
@@ -25,58 +40,289 @@ function init() {
         loadData();
     }
     
-    // Set up event listeners
     setupEventListeners();
-    
-    // Setup floating button
-    setupFloatingButton();
-    
-    // Setup modern selects
-    setupModernSelects();
-    
-    // Initial render
+    applyTheme();
+    loadCardStates();
     renderAll();
     
-    // Check for updates
-    checkForUpdates();
-    
-    console.log('InoBill PWA: Initialized successfully');
+    console.log('InoBill: Initialized successfully');
 }
 
-// Load data from localStorage
+// Theme Management
+function applyTheme() {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    const themeIcon = document.querySelector('.theme-icon');
+    if (themeIcon) {
+        themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+    }
+}
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', currentTheme);
+    applyTheme();
+    showToast('Theme changed', 'success');
+}
+
+// Data Management
 function loadData() {
     try {
-        const savedParticipants = localStorage.getItem('inobill_participants');
-        const savedMenuItems = localStorage.getItem('inobill_menuItems');
-        const savedAdditionalCosts = localStorage.getItem('inobill_additionalCosts');
-        const savedOrders = localStorage.getItem('inobill_orders');
-        const savedDiscount = localStorage.getItem('inobill_discount');
-        
-        if (savedParticipants) participants = JSON.parse(savedParticipants);
-        if (savedMenuItems) menuItems = JSON.parse(savedMenuItems);
-        if (savedAdditionalCosts) additionalCosts = JSON.parse(savedAdditionalCosts);
-        if (savedOrders) orders = JSON.parse(savedOrders);
-        if (savedDiscount) discount = JSON.parse(savedDiscount);
-        
-        console.log('InoBill PWA: Data loaded from localStorage');
+        const savedData = localStorage.getItem('inobill-data');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            participants = data.participants || [];
+            menuItems = data.menuItems || [];
+            additionalCosts = data.additionalCosts || [];
+            orders = data.orders || {};
+            discount = data.discount || { amount: 0, percentage: 0, type: 'menu' };
+        }
     } catch (error) {
-        console.error('InoBill PWA: Error loading data from localStorage', error);
+        console.error('Error loading data:', error);
     }
 }
 
-// Save data to localStorage
+// Modal Management
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        // Focus first input
+        const firstInput = modal.querySelector('input, select');
+        if (firstInput) {
+            setTimeout(() => firstInput.focus(), 300);
+        }
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+        
+        // Clear form
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+        
+        // Clear all inputs in modal
+        const inputs = modal.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            if (input.type === 'text' || input.type === 'number') {
+                input.value = '';
+            }
+        });
+    }
+}
+
+function closeModalManually(modalId) {
+    closeModal(modalId);
+}
+
+// Toast Notifications
+function showToast(message, type = 'success') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+    
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || icons.info}</span>
+        <span class="toast-message">${message}</span>
+    `;
+    
+    // Add to page
+    document.body.appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Remove toast
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 function saveData() {
     try {
-        localStorage.setItem('inobill_participants', JSON.stringify(participants));
-        localStorage.setItem('inobill_menuItems', JSON.stringify(menuItems));
-        localStorage.setItem('inobill_additionalCosts', JSON.stringify(additionalCosts));
-        localStorage.setItem('inobill_orders', JSON.stringify(orders));
-        localStorage.setItem('inobill_discount', JSON.stringify(discount));
-        
-        console.log('InoBill PWA: Data saved to localStorage');
+        const data = {
+            participants,
+            menuItems,
+            additionalCosts,
+            orders,
+            discount,
+            theme: currentTheme
+        };
+        localStorage.setItem('inobill-data', JSON.stringify(data));
     } catch (error) {
-        console.error('InoBill PWA: Error saving data to localStorage', error);
+        console.error('Error saving data:', error);
     }
+}
+
+// Participant Management
+function showAddParticipantModal() {
+    showModal('addParticipantModal');
+}
+
+function addParticipant() {
+    const nameInput = document.getElementById('participantName');
+    const name = nameInput.value.trim();
+    
+    if (!name) {
+        showToast('Please enter a name', 'error');
+        nameInput.focus();
+        return;
+    }
+    
+    if (participants.includes(name)) {
+        showToast('Participant already exists', 'warning');
+        nameInput.focus();
+        return;
+    }
+    
+    participants.push(name);
+    orders[name] = [];
+    saveData();
+    renderParticipants();
+    nameInput.value = '';
+    nameInput.focus();
+    showToast(`${name} added successfully`, 'success');
+}
+
+function removeParticipant(name) {
+    const index = participants.indexOf(name);
+    if (index > -1) {
+        participants.splice(index, 1);
+        delete orders[name];
+        saveData();
+        renderParticipants();
+        renderOrders();
+        showToast(`${name} removed`, 'success');
+    }
+}
+
+// Menu Management
+function showAddMenuModal() {
+    showModal('addMenuModal');
+}
+
+function addMenuItem() {
+    const nameInput = document.getElementById('menuName');
+    const priceInput = document.getElementById('menuPrice');
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
+    
+    if (!name) {
+        showToast('Please enter item name', 'error');
+        nameInput.focus();
+        return;
+    }
+    
+    if (isNaN(price) || price < 0) {
+        showToast('Please enter valid price', 'error');
+        priceInput.focus();
+        return;
+    }
+    
+    menuItems.push({ name, price });
+    saveData();
+    renderMenuItems();
+    nameInput.value = '';
+    priceInput.value = '';
+    nameInput.focus();
+    showToast(`${name} added successfully`, 'success');
+}
+
+// Additional Costs Management
+function showAddCostModal() {
+    showModal('addCostModal');
+}
+
+function addAdditionalCost() {
+    const nameInput = document.getElementById('additionalCostName');
+    const amountInput = document.getElementById('additionalCostAmount');
+    const typeSelect = document.getElementById('additionalCostType');
+    const name = nameInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    const type = typeSelect.value;
+    
+    if (!name) {
+        showToast('Please enter cost name', 'error');
+        nameInput.focus();
+        return;
+    }
+    
+    if (isNaN(amount) || amount < 0) {
+        showToast('Please enter valid amount', 'error');
+        amountInput.focus();
+        return;
+    }
+    
+    additionalCosts.push({ name, amount, type });
+    saveData();
+    renderAdditionalCosts();
+    nameInput.value = '';
+    amountInput.value = '';
+    nameInput.focus();
+    showToast(`${name} added successfully`, 'success');
+}
+
+// Discount Management
+function showDiscountModal() {
+    // Load current discount values
+    document.getElementById('discountAmount').value = discount.amount || '';
+    document.getElementById('discountPercentage').value = discount.percentage || '';
+    document.getElementById('discountType').value = discount.type || 'menu';
+    
+    showModal('discountModal');
+}
+
+function applyDiscount() {
+    const amountInput = document.getElementById('discountAmount');
+    const percentageInput = document.getElementById('discountPercentage');
+    const typeSelect = document.getElementById('discountType');
+    
+    const amount = parseFloat(amountInput.value) || 0;
+    const percentage = parseFloat(percentageInput.value) || 0;
+    const type = typeSelect.value;
+    
+    if (amount === 0 && percentage === 0) {
+        showToast('Please enter discount amount or percentage', 'error');
+        amountInput.focus();
+        return;
+    }
+    
+    if (percentage > 100) {
+        showToast('Discount percentage cannot exceed 100%', 'error');
+        percentageInput.focus();
+        return;
+    }
+    
+    discount.amount = amount;
+    discount.percentage = percentage;
+    discount.type = type;
+    
+    saveData();
+    renderDiscount();
+    amountInput.value = '';
+    percentageInput.value = '';
+    amountInput.focus();
+    showToast('Discount applied successfully', 'success');
+}
+
+function clearDiscount() {
+    discount = { amount: 0, percentage: 0, type: 'menu' };
+    saveData();
+    renderDiscount();
+    showToast('Discount cleared', 'success');
 }
 
 // Reset all data
@@ -454,7 +700,7 @@ function resetCustomSelect(selectId, defaultValue, defaultText) {
     }
 }
 
-// Toggle discount fields (mutually exclusive)
+// Toggle discount fields (mutually exclusive - enforces single discount policy)
 function toggleDiscountFields() {
     const discountAmount = document.getElementById('discountAmount');
     const discountPercentage = document.getElementById('discountPercentage');
@@ -465,34 +711,46 @@ function toggleDiscountFields() {
     const amountValue = parseFloat(discountAmount.value) || 0;
     const percentageValue = parseFloat(discountPercentage.value) || 0;
     
+    // Enforce single discount policy
     if (amountValue > 0 && percentageValue > 0) {
         // If both have values, prioritize amount and clear percentage
         discountPercentage.value = '';
         discount.percentage = 0;
-        infoDiv.textContent = 'Menggunakan diskon (prioritas)';
+        discount.amount = amountValue;
+        infoDiv.textContent = 'Hanya satu jenis diskon yang diizinkan. Menggunakan diskon Rp.';
         infoDiv.style.display = 'block';
+        infoDiv.style.color = '#f59e0b'; // Warning color
+        
+        // Show notification
+        showNotification('Hanya satu jenis diskon yang diizinkan. Menggunakan diskon Rp.', 'warning');
     } else if (amountValue > 0) {
-        // Only amount has value
+        // Only amount has value - disable percentage field
         discountPercentage.disabled = true;
+        discountPercentage.style.opacity = '0.5';
         discount.percentage = 0;
-        infoDiv.textContent = 'Menggunakan diskon Rp';
+        discount.amount = amountValue;
+        infoDiv.textContent = 'Menggunakan diskon Rp (diskon % dinonaktifkan)';
         infoDiv.style.display = 'block';
+        infoDiv.style.color = '#10b981'; // Success color
     } else if (percentageValue > 0) {
-        // Only percentage has value
+        // Only percentage has value - disable amount field
         discountAmount.disabled = true;
+        discountAmount.style.opacity = '0.5';
         discount.amount = 0;
-        infoDiv.textContent = 'Menggunakan diskon %';
+        discount.percentage = percentageValue;
+        infoDiv.textContent = 'Menggunakan diskon % (diskon Rp dinonaktifkan)';
         infoDiv.style.display = 'block';
+        infoDiv.style.color = '#10b981'; // Success color
     } else {
-        // Neither has value
+        // Neither has value - enable both fields
         discountAmount.disabled = false;
         discountPercentage.disabled = false;
+        discountAmount.style.opacity = '1';
+        discountPercentage.style.opacity = '1';
+        discount.amount = 0;
+        discount.percentage = 0;
         infoDiv.style.display = 'none';
     }
-    
-    // Update discount object
-    discount.amount = amountValue;
-    discount.percentage = percentageValue;
     
     // Safely get custom select value
     try {
@@ -502,8 +760,14 @@ function toggleDiscountFields() {
         discount.type = 'menu';
     }
     
-    // Trigger calculation
+    // Save data and update UI
+    saveData();
+    renderDiscount();
+    
+    // Only trigger calculation if there's actually a discount
+    if (discount.amount > 0 || discount.percentage > 0) {
     calculateSplit();
+    }
 }
 
 // Add participant
@@ -730,8 +994,8 @@ function renderParticipants() {
     
     container.innerHTML = participants.map(name => `
         <div class="participant-item">
-            <span>${name}</span>
             <button onclick="removeParticipant('${name}')" class="remove-btn">Hapus</button>
+            <span>${name}</span>
         </div>
     `).join('');
 }
@@ -748,9 +1012,9 @@ function renderMenuItems() {
     
     container.innerHTML = menuItems.map((item, index) => `
         <div class="menu-item">
+            <button onclick="removeMenuItem(${index})" class="remove-btn">Hapus</button>
             <span class="name">${item.name}</span>
             <span class="price">${formatCurrency(item.price)}</span>
-            <button onclick="removeMenuItem(${index})" class="remove-btn">Hapus</button>
         </div>
     `).join('');
 }
@@ -767,9 +1031,9 @@ function renderAdditionalCosts() {
     
     container.innerHTML = additionalCosts.map((cost, index) => `
         <div class="additional-cost-item">
+            <button onclick="removeAdditionalCost(${index})" class="remove-btn">Hapus</button>
             <span class="name">${cost.name}</span>
             <span class="amount">${cost.type === 'percentage' ? cost.amount + '%' : formatCurrency(cost.amount)}</span>
-            <button onclick="removeAdditionalCost(${index})" class="remove-btn">Hapus</button>
         </div>
     `).join('');
 }
@@ -932,30 +1196,36 @@ function displayResults(results, summary) {
         </div>
     `;
     
-    const factorHTML = `
-        <div style="margin-top: 20px; font-size: 0.9em; border: 2px solid #0174BE; border-radius: 8px; padding: 15px; background: #ffffff;">
-            <div style="color: #0174BE; font-weight: bold; font-size: 1.1em; margin-bottom: 15px; text-align: center;">
-                🔢 Proses Perhitungan dengan Faktor Pembagi
-            </div>
-            <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #0174BE;">
-                <div style="font-weight: bold; color: #0174BE; margin-bottom: 5px;">📐 Formula Faktor Pembagi:</div>
-                <div style="font-family: monospace; background: #e9ecef; color: #212529; padding: 8px; border-radius: 3px; margin: 5px 0;">
-                    (Total Subtotal + Biaya Tambahan - Diskon) ÷ Total Subtotal = <strong style="color: #dc3545;">${summary.factor.toFixed(4)}</strong>
-                </div>
-                <div style="font-weight: bold; color: #0174BE; margin-top: 8px;">💰 Harga Baru:</div>
-                <div style="font-family: monospace; background: #e9ecef; color: #212529; padding: 8px; border-radius: 3px; margin: 5px 0;">
-                    Harga Asli × Faktor Pembagi
-                </div>
-            </div>
-        </div>
-    `;
-    
-    container.innerHTML = resultsHTML + summaryHTML + factorHTML;
+    // Hide calculation process - removed factorHTML for secrecy
+    container.innerHTML = resultsHTML + summaryHTML;
     
     // Show action buttons
     const actionButtons = document.getElementById('actionButtons');
     if (actionButtons) {
         actionButtons.style.display = 'flex';
+    }
+}
+
+// Render discount values to form
+function renderDiscount() {
+    const discountAmount = document.getElementById('discountAmount');
+    const discountPercentage = document.getElementById('discountPercentage');
+    
+    if (discountAmount && discountPercentage) {
+        // Set values from saved data
+        discountAmount.value = discount.amount || '';
+        discountPercentage.value = discount.percentage || '';
+        
+        // Set discount type
+        try {
+            resetCustomSelect('discountType', discount.type || 'menu', 
+                discount.type === 'menu' ? 'Setelah Menu' : 'Dari Total Semua');
+        } catch (error) {
+            console.warn('InoBill PWA: Error setting discount type, using default');
+        }
+        
+        // Update UI state
+        toggleDiscountFields();
     }
 }
 
@@ -965,6 +1235,7 @@ function renderAll() {
     renderMenuItems();
     renderAdditionalCosts();
     renderOrders();
+    renderDiscount();
     calculateSplit();
 }
 
@@ -1162,19 +1433,727 @@ function hideLoading() {
     Swal.close();
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', init);
+// Event Listeners
+function setupEventListeners() {
+    // Close modals when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            closeModal(e.target.id);
+        }
+    });
+    
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const openModal = document.querySelector('.modal.show');
+            if (openModal) {
+                closeModal(openModal.id);
+            }
+        }
+    });
+    
+    // Enter key to add items
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const activeElement = document.activeElement;
+            const modal = activeElement.closest('.modal');
+            
+            if (modal) {
+                if (modal.id === 'addParticipantModal') {
+                    addParticipant();
+                } else if (modal.id === 'addMenuModal') {
+                    addMenuItem();
+                } else if (modal.id === 'addCostModal') {
+                    addAdditionalCost();
+                } else if (modal.id === 'discountModal') {
+                    applyDiscount();
+                }
+            }
+        }
+    });
+    
+    // Auto-save on changes
+    setInterval(saveData, 5000);
+}
 
-// Initialize when page loads
-window.addEventListener('load', () => {
-    console.log('InoBill PWA: Page loaded');
-    // Additional initialization if needed
-});
+// Render Functions
+function renderParticipants() {
+    const container = document.getElementById('participantsList');
+    
+    if (participants.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">👥</span>
+                <p>No participants yet</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = participants.map(participant => `
+        <div class="participant-item fade-in">
+            <span>${participant}</span>
+            <button class="remove-btn" onclick="removeParticipant('${participant}')">
+                <span>🗑️</span>
+            </button>
+        </div>
+    `).join('');
+}
 
-// Print Bill Function
+function renderMenuItems() {
+    const container = document.getElementById('menuList');
+    
+    if (menuItems.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">🍽️</span>
+                <p>No menu items yet</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = menuItems.map((item, index) => `
+        <div class="menu-item fade-in">
+            <span class="name">${item.name}</span>
+            <span class="price">${formatCurrency(item.price)}</span>
+            <button class="remove-btn" onclick="removeMenuItem(${index})">
+                <span>🗑️</span>
+            </button>
+        </div>
+    `).join('');
+}
+
+function renderAdditionalCosts() {
+    const container = document.getElementById('additionalCostsList');
+    
+    if (additionalCosts.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">💰</span>
+                <p>No additional costs yet</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = additionalCosts.map((cost, index) => `
+        <div class="additional-cost-item fade-in">
+            <span class="name">${cost.name}</span>
+            <span class="amount">${cost.type === 'percentage' ? cost.amount + '%' : formatCurrency(cost.amount)}</span>
+            <button class="remove-btn" onclick="removeAdditionalCost(${index})">
+                <span>🗑️</span>
+            </button>
+        </div>
+    `).join('');
+}
+
+function renderDiscount() {
+    const container = document.getElementById('discountList');
+    
+    if (!discount || (discount.amount === 0 && discount.percentage === 0)) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">🎯</span>
+                <p>Belum ada diskon diterapkan</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Enforce single discount display (should never show both)
+    let discountText = '';
+    let discountIcon = '';
+    
+    if (discount.amount > 0) {
+        discountText = formatCurrency(discount.amount);
+        discountIcon = '💰';
+    } else if (discount.percentage > 0) {
+        discountText = `${discount.percentage}%`;
+        discountIcon = '📊';
+    }
+    
+    const typeText = discount.type === 'menu' ? 'Setelah Menu' : 'Dari Total Semua';
+    
+    container.innerHTML = `
+        <div class="discount-item fade-in">
+            <span class="name">
+                ${discountIcon} Diskon (${typeText})
+                <small style="display: block; color: #666; font-size: 0.8em; margin-top: 2px;">
+                    Hanya 1 diskon aktif
+                </small>
+            </span>
+            <span class="amount" style="color: #10b981; font-weight: 600;">
+                ${discountText}
+            </span>
+            <button class="remove-btn" onclick="clearDiscount()" title="Hapus diskon">
+                <span>🗑️</span>
+            </button>
+        </div>
+    `;
+}
+
+function renderOrders() {
+    const container = document.getElementById('ordersList');
+    
+    if (participants.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">📋</span>
+                <p>Add participants first</p>
+            </div>
+        `;
+        return;
+    }
+    
+    if (menuItems.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">📋</span>
+                <p>Add menu items first</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = participants.map(participant => {
+        const participantOrders = orders[participant] || [];
+        const total = calculateParticipantTotal(participant);
+        
+        return `
+            <div class="participant-orders">
+                <h4>${participant} ${total > 0 ? `(${formatCurrency(total)})` : ''}</h4>
+                <div class="order-items">
+                    ${menuItems.map((item, index) => {
+                        const existingOrder = participantOrders.find(o => o.type === 'menu' && o.index === index);
+                        const quantity = existingOrder ? existingOrder.quantity || 1 : 0;
+                        const isSelected = quantity > 0;
+                        
+                        return `
+                            <div class="order-item ${isSelected ? 'selected' : ''}">
+                                <div class="order-checkbox">
+                                    <input type="checkbox" 
+                                           ${isSelected ? 'checked' : ''}
+                                           onchange="toggleOrder('${participant}', 'menu', ${index})">
+                                </div>
+                                <div class="order-details">
+                                    <span class="name">${item.name}</span>
+                                    <span class="price">${formatCurrency(item.price)}</span>
+                                </div>
+                                <div class="quantity-controls" style="display: ${isSelected ? 'flex' : 'none'}">
+                                    <button onclick="decreaseQuantity('${participant}', ${index})" class="qty-btn">-</button>
+                                    <input type="number" 
+                                           value="${quantity}" 
+                                           min="1" 
+                                           max="99"
+                                           onchange="updateQuantity('${participant}', ${index}, this.value)"
+                                           class="qty-input">
+                                    <button onclick="increaseQuantity('${participant}', ${index})" class="qty-btn">+</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderAll() {
+    renderParticipants();
+    renderMenuItems();
+    renderAdditionalCosts();
+    renderDiscount();
+    renderOrders();
+}
+
+// Remove Functions
+function removeMenuItem(index) {
+    const item = menuItems[index];
+    menuItems.splice(index, 1);
+    
+    // Remove from all orders and adjust indices
+    Object.keys(orders).forEach(participant => {
+        orders[participant] = orders[participant]
+            .filter(order => !(order.type === 'menu' && order.index === index))
+            .map(order => {
+                if (order.type === 'menu' && order.index > index) {
+                    return { ...order, index: order.index - 1 };
+                }
+                return order;
+            });
+    });
+    
+    saveData();
+    renderMenuItems();
+    renderOrders();
+    showToast(`${item.name} removed`, 'success');
+}
+
+function removeAdditionalCost(index) {
+    const cost = additionalCosts[index];
+    additionalCosts.splice(index, 1);
+    
+    saveData();
+    renderAdditionalCosts();
+    renderOrders();
+    showToast(`${cost.name} removed`, 'success');
+}
+
+// Order Management
+function toggleOrder(participant, itemType, itemIndex) {
+    if (!orders[participant]) {
+        orders[participant] = [];
+    }
+    
+    // Only handle menu items, not additional costs
+    if (itemType !== 'menu') {
+        return;
+    }
+    
+    const existingIndex = orders[participant].findIndex(order => 
+        order.type === itemType && order.index === itemIndex
+    );
+    
+    if (existingIndex !== -1) {
+        // Remove order
+        orders[participant].splice(existingIndex, 1);
+    } else {
+        // Add order with quantity 1
+        orders[participant].push({ type: itemType, index: itemIndex, quantity: 1 });
+    }
+    
+    saveData();
+    renderOrders();
+}
+
+function increaseQuantity(participant, itemIndex) {
+    if (!orders[participant]) {
+        orders[participant] = [];
+    }
+    
+    const existingIndex = orders[participant].findIndex(order => 
+        order.type === 'menu' && order.index === itemIndex
+    );
+    
+    if (existingIndex !== -1) {
+        orders[participant][existingIndex].quantity = Math.min(99, (orders[participant][existingIndex].quantity || 1) + 1);
+    } else {
+        orders[participant].push({ type: 'menu', index: itemIndex, quantity: 1 });
+    }
+    
+    saveData();
+    renderOrders();
+}
+
+function decreaseQuantity(participant, itemIndex) {
+    if (!orders[participant]) {
+        return;
+    }
+    
+    const existingIndex = orders[participant].findIndex(order => 
+        order.type === 'menu' && order.index === itemIndex
+    );
+    
+    if (existingIndex !== -1) {
+        const currentQuantity = orders[participant][existingIndex].quantity || 1;
+        if (currentQuantity > 1) {
+            orders[participant][existingIndex].quantity = currentQuantity - 1;
+        } else {
+            // Remove order if quantity becomes 0
+            orders[participant].splice(existingIndex, 1);
+        }
+    }
+    
+    saveData();
+    renderOrders();
+}
+
+function updateQuantity(participant, itemIndex, newQuantity) {
+    if (!orders[participant]) {
+        orders[participant] = [];
+    }
+    
+    const quantity = parseInt(newQuantity) || 1;
+    
+    if (quantity <= 0) {
+        // Remove order
+        const existingIndex = orders[participant].findIndex(order => 
+            order.type === 'menu' && order.index === itemIndex
+        );
+        if (existingIndex !== -1) {
+            orders[participant].splice(existingIndex, 1);
+        }
+    } else {
+        // Update or add order
+        const existingIndex = orders[participant].findIndex(order => 
+            order.type === 'menu' && order.index === itemIndex
+        );
+        
+        if (existingIndex !== -1) {
+            orders[participant][existingIndex].quantity = Math.min(99, quantity);
+        } else {
+            orders[participant].push({ type: 'menu', index: itemIndex, quantity: Math.min(99, quantity) });
+        }
+    }
+    
+    saveData();
+    renderOrders();
+}
+
+function calculateParticipantTotal(participant) {
+    const participantOrders = orders[participant] || [];
+    let total = 0;
+    
+    // Calculate menu items total
+    participantOrders.forEach(order => {
+        if (order.type === 'menu') {
+            const itemPrice = menuItems[order.index]?.price || 0;
+            const quantity = order.quantity || 1;
+            total += itemPrice * quantity;
+        }
+    });
+    
+    return total;
+}
+
+function calculateSplit() {
+    if (participants.length === 0) {
+        showToast('Add participants first', 'warning');
+        return;
+    }
+    
+    if (menuItems.length === 0) {
+        showToast('Add menu items first', 'warning');
+        return;
+    }
+    
+    // Calculate individual costs (original menu prices)
+    const individualCosts = {};
+    let totalFoodCost = 0;
+    
+    participants.forEach(participant => {
+        let cost = 0;
+        const participantOrders = orders[participant] || [];
+        
+        participantOrders.forEach(order => {
+            if (order.type === 'menu') {
+                const itemPrice = menuItems[order.index]?.price || 0;
+                const quantity = order.quantity || 1;
+                cost += itemPrice * quantity;
+                totalFoodCost += itemPrice * quantity;
+            }
+        });
+        
+        individualCosts[participant] = cost;
+    });
+    
+    // Calculate additional costs
+    let totalAdditionalCosts = 0;
+    const additionalCostsBreakdown = {};
+    
+    additionalCosts.forEach(cost => {
+        let costValue = 0;
+        if (cost.type === 'percentage') {
+            costValue = (totalFoodCost * cost.amount) / 100;
+        } else {
+            costValue = cost.amount;
+        }
+        additionalCostsBreakdown[cost.name] = costValue;
+        totalAdditionalCosts += costValue;
+    });
+    
+    // Calculate discount
+    let totalDiscount = 0;
+    let foodAfterDiscount = totalFoodCost;
+    let additionalCostsAfterDiscount = totalAdditionalCosts;
+    
+    if (discount && (discount.amount > 0 || discount.percentage > 0)) {
+        if (discount.amount > 0) {
+            // Use amount (Rp)
+            totalDiscount = discount.amount;
+            
+            if (discount.type === 'menu') {
+                // Discount only from food
+                foodAfterDiscount = Math.max(0, totalFoodCost - totalDiscount);
+                additionalCostsAfterDiscount = totalAdditionalCosts;
+            } else {
+                // Discount from total bill, proportional distribution
+                const totalBillBeforeDiscount = totalFoodCost + totalAdditionalCosts;
+                const foodDiscountRatio = totalFoodCost / totalBillBeforeDiscount;
+                const additionalCostDiscountRatio = totalAdditionalCosts / totalBillBeforeDiscount;
+                
+                foodAfterDiscount = Math.max(0, totalFoodCost - (totalDiscount * foodDiscountRatio));
+                additionalCostsAfterDiscount = Math.max(0, totalAdditionalCosts - (totalDiscount * additionalCostDiscountRatio));
+            }
+        } else if (discount.percentage > 0) {
+            // Use percentage (%)
+            if (discount.type === 'menu') {
+                totalDiscount = (totalFoodCost * discount.percentage) / 100;
+                foodAfterDiscount = Math.max(0, totalFoodCost - totalDiscount);
+                additionalCostsAfterDiscount = totalAdditionalCosts;
+            } else {
+                const totalBillBeforeDiscount = totalFoodCost + totalAdditionalCosts;
+                totalDiscount = (totalBillBeforeDiscount * discount.percentage) / 100;
+                const foodDiscountRatio = totalFoodCost / totalBillBeforeDiscount;
+                const additionalCostDiscountRatio = totalAdditionalCosts / totalBillBeforeDiscount;
+                
+                foodAfterDiscount = Math.max(0, totalFoodCost - (totalDiscount * foodDiscountRatio));
+                additionalCostsAfterDiscount = Math.max(0, totalAdditionalCosts - (totalDiscount * additionalCostDiscountRatio));
+            }
+        }
+    }
+    
+    // Calculate factor = (total food after discount + total additional costs after discount) / total food cost
+    const factor = totalFoodCost > 0 ? (foodAfterDiscount + additionalCostsAfterDiscount) / totalFoodCost : 1;
+    
+    // Calculate menu subtotals and quantities for breakdown
+    const menuSubtotals = {};
+    const menuQuantities = {};
+    const menuItemDiscounts = {};
+    
+    menuItems.forEach(item => {
+        // Count total quantity of this item
+        let itemQuantity = 0;
+        participants.forEach(participant => {
+            const participantOrders = orders[participant] || [];
+            participantOrders.forEach(order => {
+                if (order.type === 'menu' && order.index === menuItems.indexOf(item)) {
+                    itemQuantity += order.quantity || 1;
+                }
+            });
+        });
+        
+        menuQuantities[item.name] = itemQuantity;
+        menuSubtotals[item.name] = item.price * itemQuantity;
+        menuItemDiscounts[item.name] = item.price * factor;
+    });
+    
+    // Calculate final amounts using factor
+    const finalAmounts = {};
+    let grandTotal = 0;
+    
+    participants.forEach(participant => {
+        const originalCost = individualCosts[participant];
+        const adjustedCost = originalCost * factor;
+        finalAmounts[participant] = adjustedCost;
+        grandTotal += adjustedCost;
+    });
+    
+    // Create results array for display
+    const results = participants.map(participant => ({
+        participant,
+        amount: finalAmounts[participant],
+        orders: orders[participant] || []
+    }));
+    
+    displayResults(results, grandTotal, {
+        totalFoodCost: foodAfterDiscount,
+        additionalCostsBreakdown,
+        totalDiscount,
+        totalAdditionalCosts: additionalCostsAfterDiscount,
+        grandTotal,
+        factor,
+        menuSubtotals,
+        menuQuantities,
+        menuItemDiscounts
+    });
+}
+
+// Calculation and Results
+// Function calculateSplit already defined above with correct calculation
+
+function displayResults(results, totalBill, summary = null) {
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsContainer = document.getElementById('results');
+    
+    // Create breakdown of additional costs
+    const additionalCostsText = summary && summary.additionalCostsBreakdown ? 
+        Object.entries(summary.additionalCostsBreakdown)
+            .map(([name, value]) => `${name}: ${formatCurrency(value)}`)
+            .join('<br>') : '';
+    
+    // Create detailed menu breakdown with factor calculation
+    const menuBreakdown = summary && summary.menuSubtotals ? 
+        Object.entries(summary.menuSubtotals)
+            .map(([name, subtotal]) => {
+                const qty = summary.menuQuantities[name] || 0;
+                const originalPrice = menuItems.find(item => item.name === name)?.price || 0;
+                const newPrice = summary.menuItemDiscounts[name] || 0;
+                const factor = summary.factor || 1;
+                return `
+                    <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee;">
+                        <div>
+                            <strong style="color: #2c5aa0;">${name}</strong><br>
+                            <small style="color: #666;">Qty: ${qty} × ${formatCurrency(originalPrice)}</small><br>
+                            <small style="color: #666;">Subtotal: ${formatCurrency(subtotal)}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #666; font-size: 0.8em;">Faktor: ${factor.toFixed(4)}</div><br>
+                            <div style="color: #2c5aa0; font-weight: bold;">Harga Baru: ${formatCurrency(newPrice)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '';
+    
+    // Get discount type for display
+    const discountType = discount ? discount.type : 'menu';
+    const discountTypeText = discountType === 'menu' ? 'Menu' : 'Total Semua';
+    
+    // Create calculation breakdown based on discount type
+    let calculationBreakdown = '';
+    
+    if (discountType === 'menu') {
+        // For menu-only discount: show original food, then discount, then additional costs
+        const originalFoodCost = summary.totalFoodCost + summary.totalDiscount;
+        calculationBreakdown = `
+            <div style="padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px; border-left: 4px solid #007bff;">
+                <div style="font-weight: 600; color: #007bff; margin-bottom: 12px; display: flex; align-items: center;">
+                    <span style="margin-right: 8px;">🧮</span>
+                    Rincian Perhitungan
+                </div>
+                <div style="font-size: 0.9em; line-height: 1.6;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Total Makanan:</span>
+                        <span style="font-weight: 600;">${formatCurrency(originalFoodCost)}</span>
+                    </div>
+                    ${summary.totalDiscount > 0 ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #ff6b6b;">
+                            <span>Diskon (Menu):</span>
+                            <span style="font-weight: 600;">-${formatCurrency(summary.totalDiscount)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">
+                            <span style="font-weight: 600;">Makanan Setelah Diskon:</span>
+                            <span style="font-weight: 600; color: #28a745;">${formatCurrency(summary.totalFoodCost)}</span>
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Biaya Tambahan:</span>
+                        <span style="font-weight: 600;">${formatCurrency(summary.totalAdditionalCosts)}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        // For total-bill discount: show original total, then discount
+        const originalFoodCost = summary.totalFoodCost + (summary.totalDiscount * (summary.totalFoodCost / (summary.totalFoodCost + summary.totalAdditionalCosts)));
+        const originalAdditionalCost = summary.totalAdditionalCosts + (summary.totalDiscount * (summary.totalAdditionalCosts / (summary.totalFoodCost + summary.totalAdditionalCosts)));
+        const originalTotal = originalFoodCost + originalAdditionalCost;
+        
+        calculationBreakdown = `
+            <div style="padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px; border-left: 4px solid #007bff;">
+                <div style="font-weight: 600; color: #007bff; margin-bottom: 12px; display: flex; align-items: center;">
+                    <span style="margin-right: 8px;">🧮</span>
+                    Rincian Perhitungan
+                </div>
+                <div style="font-size: 0.9em; line-height: 1.6;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Total Makanan:</span>
+                        <span style="font-weight: 600;">${formatCurrency(originalFoodCost)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Biaya Tambahan:</span>
+                        <span style="font-weight: 600;">${formatCurrency(originalAdditionalCost)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">
+                        <span style="font-weight: 600;">Subtotal:</span>
+                        <span style="font-weight: 600; color: #007bff;">${formatCurrency(originalTotal)}</span>
+                    </div>
+                    ${summary.totalDiscount > 0 ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #ff6b6b;">
+                            <span>Diskon (Total Semua):</span>
+                            <span style="font-weight: 600;">-${formatCurrency(summary.totalDiscount)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #dee2e6;">
+                            <span style="font-weight: 600;">Total Setelah Diskon:</span>
+                            <span style="font-weight: 600; color: #28a745;">${formatCurrency(summary.grandTotal)}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+    
+    resultsContainer.innerHTML = `
+        <div class="results-list">
+            ${results.map(result => {
+                // Generate list of ordered items
+                const orderedItems = result.orders
+                    .filter(order => order.type === 'menu')
+                    .map(order => {
+                        const item = menuItems[order.index];
+                        const quantity = order.quantity || 1;
+                        return `${item.name} (${quantity}x)`;
+                    })
+                    .join(', ');
+                
+                return `
+                    <div class="participant-result fade-in" data-participant="${result.participant}">
+                        <div class="participant-info">
+                            <div class="participant-name">${result.participant}</div>
+                            <div class="participant-items">
+                                ${orderedItems || 'Tidak ada pesanan'}
+                            </div>
+                        </div>
+                        <div class="participant-amount">
+                            ${formatCurrency(result.amount)}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div class="total-summary">
+            <h3>Total Tagihan</h3>
+            <div class="total-amount">${formatCurrency(totalBill)}</div>
+            <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border: 1px solid #dee2e6;">
+                ${calculationBreakdown}
+                <div style="margin-top: 20px; padding: 15px; background: rgba(40, 167, 69, 0.1); border-radius: 8px; border-left: 4px solid #28a745;">
+                    <div style="font-weight: 600; color: #28a745; margin-bottom: 8px; display: flex; align-items: center;">
+                        <span style="margin-right: 8px;">📊</span>
+                        Ringkasan Pembagian
+                    </div>
+                    <div style="font-size: 0.9em; line-height: 1.6; color: #666;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Jumlah Peserta:</span>
+                            <span style="font-weight: 600;">${participants.length} orang</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Rata-rata per orang:</span>
+                            <span style="font-weight: 600;">${formatCurrency(totalBill / participants.length)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Faktor pembagi:</span>
+                            <span style="font-weight: 600; color: #28a745;">${summary.factor?.toFixed(4) || '1.0000'}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    resultsSection.style.display = 'block';
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
+    
+    // Store calculation results for print
+    lastCalculationResults = {
+        results: results,
+        totalBill: totalBill,
+        summary: summary,
+        timestamp: new Date()
+    };
+    
+    showToast('Bill calculated successfully', 'success');
+}
+
+// Print and Share
 function printBill() {
     if (participants.length === 0) {
-        showError('Error', 'Belum ada peserta yang ditambahkan');
+        showToast('Add participants first', 'warning');
+        return;
+    }
+    
+    if (!lastCalculationResults) {
+        showToast('Calculate bill first', 'warning');
         return;
     }
 
@@ -1271,31 +2250,31 @@ function printBill() {
                     border-radius: 4px;
                     text-align: center;
                     font-weight: 700;
-                    font-size: 14px;
+                    font-size: 12px;
                     margin-top: 8px;
                 }
                 .summary-section {
-                    background: #f9fafb;
+                    margin-top: 20px;
                     padding: 10px;
+                    background: #f8fafc;
                     border-radius: 4px;
-                    margin-top: 10px;
-                    font-size: 11px;
+                    border: 1px solid #e5e7eb;
                 }
                 .summary-item {
                     display: flex;
                     justify-content: space-between;
                     padding: 3px 0;
                     border-bottom: 1px solid #e5e7eb;
+                    font-size: 11px;
                 }
                 .summary-item:last-child {
                     border-bottom: none;
                     font-weight: 700;
-                    font-size: 12px;
                     color: #0174BE;
                 }
                 .footer {
                     text-align: center;
-                    margin-top: 15px;
+                    margin-top: 20px;
                     padding-top: 10px;
                     border-top: 1px solid #e5e7eb;
                     color: #666;
@@ -1364,6 +2343,607 @@ function printBill() {
         printWindow.close();
     }, 500);
     
+    showToast('Bill berhasil dicetak!', 'success');
+}
+
+function shareBill() {
+    if (navigator.share) {
+        const results = generateShareText();
+        navigator.share({
+            title: 'InoBill - Bill Split',
+            text: results,
+            url: window.location.href
+        });
+    } else {
+        // Fallback: copy to clipboard
+        const results = generateShareText();
+        navigator.clipboard.writeText(results).then(() => {
+            showToast('Bill details copied to clipboard', 'success');
+        });
+    }
+}
+
+function generateCompactBillContent() {
+    const currentDate = new Date().toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Check if we have stored calculation results
+    if (!lastCalculationResults) {
+        return `
+            <div class="header">
+                <h1>🍽️ InoBill</h1>
+                <p>Split Bill Calculator - Dibuat oleh InoTechno</p>
+            </div>
+            <div class="bill-info">
+                <p><strong>Tanggal:</strong> ${currentDate}</p>
+            </div>
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <h2>Belum ada data untuk dicetak</h2>
+                <p>Silakan hitung tagihan terlebih dahulu</p>
+            </div>
+        `;
+    }
+    
+    // Use stored calculation results
+    const { results, totalBill, summary } = lastCalculationResults;
+    
+    // Debug: Log the data to see what we have
+    console.log('Print data:', { 
+        results, 
+        totalBill, 
+        summary,
+        participants: participants.length,
+        menuItems: menuItems.length,
+        additionalCosts: additionalCosts.length,
+        orders: Object.keys(orders).length
+    });
+    
+    let content = `
+        <div class="header">
+            <h1>🍽️ InoBill</h1>
+            <p>Split Bill Calculator - Dibuat oleh InoTechno</p>
+        </div>
+        
+        <div class="bill-info">
+            <p><strong>Tanggal:</strong> ${currentDate}</p>
+            <p><strong>Total Peserta:</strong> ${participants.length} orang</p>
+            <p><strong>Total Menu:</strong> ${menuItems.length} item</p>
+        </div>
+    `;
+    
+    // Add participant details
+    if (results && results.length > 0) {
+        results.forEach(result => {
+            content += `
+                <div class="participant-section">
+                    <div class="participant-header">
+                        👤 ${result.participant}
+                    </div>
+                    <div class="participant-details">
+            `;
+            
+            // Add ordered items
+            const participantOrders = result.orders || [];
+            if (participantOrders.length > 0) {
+                participantOrders.forEach(order => {
+                    if (order.type === 'menu' && menuItems[order.index]) {
+                        const menuItem = menuItems[order.index];
+                        const quantity = order.quantity || 1;
+                        const itemTotal = menuItem.price * quantity;
+                        content += `
+                            <div class="order-item">
+                                <span class="order-name">${menuItem.name} (${quantity}x)</span>
+                                <span class="order-price">${formatCurrency(itemTotal)}</span>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                content += `
+                    <div class="order-item">
+                        <span class="order-name">Tidak ada pesanan</span>
+                        <span class="order-price">${formatCurrency(0)}</span>
+                    </div>
+                `;
+            }
+            
+            content += `
+                        <div class="total-amount">
+                            Total: ${formatCurrency(result.amount || 0)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        content += `
+            <div class="participant-section">
+                <div class="participant-header">
+                    👤 Tidak ada peserta
+                </div>
+                <div class="participant-details">
+                    <div class="order-item">
+                        <span class="order-name">Tidak ada data</span>
+                        <span class="order-price">${formatCurrency(0)}</span>
+                    </div>
+                    <div class="total-amount">
+                        Total: ${formatCurrency(0)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add summary section with better validation
+    const totalFoodCost = summary?.totalFoodCost || 0;
+    const totalAdditionalCosts = summary?.totalAdditionalCosts || 0;
+    const totalDiscount = summary?.totalDiscount || 0;
+    const grandTotal = totalBill || 0;
+    
+    content += `
+        <div class="summary-section">
+            <h3 style="margin-bottom: 10px; color: #0174BE; font-size: 14px;">Ringkasan</h3>
+            <div class="summary-item">
+                <span>Total Menu:</span>
+                <span>${formatCurrency(totalFoodCost)}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Biaya Tambahan:</span>
+                <span>${formatCurrency(totalAdditionalCosts)}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Diskon:</span>
+                <span style="color: #10b981;">-${formatCurrency(totalDiscount)}</span>
+            </div>
+            <div class="summary-item">
+                <span><strong>Grand Total:</strong></span>
+                <span><strong>${formatCurrency(grandTotal)}</strong></span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>InoBill PWA - InoTechno</p>
+        </div>
+    `;
+    
+    return content;
+}
+
+function generatePrintContent() {
+    const currentDate = new Date().toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Check if we have stored calculation results
+    if (!lastCalculationResults) {
+        return `
+            <div class="header">
+                <h1>InoBill - Bill Receipt</h1>
+                <p>Split Bill Calculator</p>
+                <p>Tanggal: ${currentDate}</p>
+            </div>
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <h2>Belum ada data untuk dicetak</h2>
+                <p>Silakan hitung tagihan terlebih dahulu</p>
+            </div>
+        `;
+    }
+    
+    // Use stored calculation results
+    const { results, totalBill, summary } = lastCalculationResults;
+    
+    // Calculate additional costs breakdown
+    let additionalCostsBreakdown = '';
+    if (additionalCosts.length > 0) {
+        additionalCostsBreakdown = additionalCosts.map(cost => {
+            if (cost.type === 'percentage') {
+                const allMenuTotal = participants.reduce((sum, p) => {
+                    const participantOrders = orders[p] || [];
+                    return sum + participantOrders
+                        .filter(o => o.type === 'menu')
+                        .reduce((menuSum, o) => menuSum + (menuItems[o.index]?.price || 0), 0);
+                }, 0);
+                const costAmount = (allMenuTotal * cost.amount) / 100;
+                return `<div class="breakdown-item"><span>${cost.name} (${cost.amount}%)</span><span>${formatCurrency(costAmount)}</span></div>`;
+            } else {
+                return `<div class="breakdown-item"><span>${cost.name}</span><span>${formatCurrency(cost.amount)}</span></div>`;
+            }
+        }).join('');
+    }
+    
+    return `
+        <div class="header">
+            <h1>InoBill - Bill Receipt</h1>
+            <p>Split Bill Calculator</p>
+            <p>Tanggal: ${currentDate}</p>
+        </div>
+        
+        <div class="participants">
+            ${results.map(result => {
+                // Calculate original food cost for this participant
+                const participantOrders = result.orders || [];
+                let foodCost = 0;
+                participantOrders.forEach(order => {
+                    if (order.type === 'menu') {
+                        const itemPrice = menuItems[order.index]?.price || 0;
+                        const quantity = order.quantity || 1;
+                        foodCost += itemPrice * quantity;
+                    }
+                });
+                
+                return `
+                    <div class="participant">
+                        <div class="participant-name">${result.participant}</div>
+                        <div class="participant-details">
+                            Makanan: ${formatCurrency(foodCost)}
+                        </div>
+                        <div class="participant-amount">${formatCurrency(result.amount)}</div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        
+        <div class="total-summary">
+            <h2>Total Tagihan</h2>
+            <div class="total-amount">${formatCurrency(totalBill)}</div>
+        </div>
+        
+        ${additionalCostsBreakdown ? `
+            <div class="breakdown">
+                <h3>Detail Biaya Tambahan</h3>
+                ${additionalCostsBreakdown}
+            </div>
+        ` : ''}
+        
+        <div class="breakdown">
+            <h3>Ringkasan Pembagian</h3>
+            <div class="breakdown-item">
+                <span>Jumlah Peserta:</span>
+                <span>${participants.length} orang</span>
+            </div>
+            <div class="breakdown-item">
+                <span>Rata-rata per orang:</span>
+                <span>${formatCurrency(totalBill / participants.length)}</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Dibuat dengan InoBill - Split Bill Calculator</p>
+            <p>© ${new Date().getFullYear()} InoTechno</p>
+        </div>
+    `;
+}
+
+function generateShareText() {
+    let text = 'InoBill - Bill Split Results\n\n';
+    
+    // Show additional costs if any
+    if (additionalCosts.length > 0) {
+        text += 'Additional Costs:\n';
+        additionalCosts.forEach(cost => {
+            if (cost.type === 'percentage') {
+                text += `- ${cost.name}: ${cost.amount}%\n`;
+            } else {
+                text += `- ${cost.name}: ${formatCurrency(cost.amount)}\n`;
+            }
+        });
+        text += '\n';
+    }
+    
+    participants.forEach(participant => {
+        const total = calculateParticipantTotal(participant);
+        text += `${participant}: ${formatCurrency(total)}\n`;
+    });
+    
+    const grandTotal = participants.reduce((sum, participant) => sum + calculateParticipantTotal(participant), 0);
+    text += `\nTotal: ${formatCurrency(grandTotal)}`;
+    
+    return text;
+}
+
+// Import/Export
+function importJsonFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    participants = data.participants || [];
+                    menuItems = data.menuItems || [];
+                    additionalCosts = data.additionalCosts || [];
+                    orders = data.orders || {};
+                    discount = data.discount || { amount: 0, percentage: 0, type: 'menu' };
+                    
+                    saveData();
+                    renderAll();
+                    showToast('Data imported successfully', 'success');
+                } catch (error) {
+                    showToast('Error importing file', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+    input.click();
+}
+
+// Reset all data
+async function resetAllData() {
+    const result = await Swal.fire({
+        title: '🔄 Reset All Data',
+        html: `
+            <div style="text-align: left; margin: 20px 0;">
+                <p style="margin-bottom: 15px; font-size: 16px; color: #374151;">
+                    Are you sure you want to clear all data?
+                </p>
+                <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p style="margin: 0; font-weight: 600; color: #ef4444; margin-bottom: 10px;">Data that will be deleted:</p>
+                    <ul style="margin: 0; padding-left: 20px; color: #6b7280;">
+                        <li>All participants</li>
+                        <li>All menu items</li>
+                        <li>All additional costs</li>
+                        <li>All orders</li>
+                        <li>All discounts</li>
+                    </ul>
+                </div>
+            </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, Reset All',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true
+    });
+    
+    if (result.isConfirmed) {
+        // Reset all data
+        participants = [];
+        menuItems = [];
+        additionalCosts = [];
+        orders = {};
+        discount = { amount: 0, percentage: 0, type: 'menu' };
+        
+        // Save and render
+        saveData();
+        renderAll();
+        
+        // Hide results section
+        const resultsSection = document.getElementById('resultsSection');
+        if (resultsSection) {
+            resultsSection.style.display = 'none';
+        }
+        
+        showToast('All data has been reset', 'success');
+    }
+}
+
+// Utility Functions
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
+}
+
+// Remove legacy function
+function formatCurrencyLegacy(amount) {
+    return formatCurrency(amount);
+}
+
+// Global functions for HTML onclick handlers
+window.showAddParticipantModal = showAddParticipantModal;
+window.showAddMenuModal = showAddMenuModal;
+window.showAddCostModal = showAddCostModal;
+window.showDiscountModal = showDiscountModal;
+window.addParticipant = addParticipant;
+window.addMenuItem = addMenuItem;
+window.addAdditionalCost = addAdditionalCost;
+window.applyDiscount = applyDiscount;
+window.removeParticipant = removeParticipant;
+window.removeMenuItem = removeMenuItem;
+window.removeAdditionalCost = removeAdditionalCost;
+window.toggleOrder = toggleOrder;
+window.calculateSplit = calculateSplit;
+window.printBill = printBill;
+window.shareBill = shareBill;
+window.importJsonFile = importJsonFile;
+window.resetAllData = resetAllData;
+window.toggleTheme = toggleTheme;
+window.closeModal = closeModal;
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', init);
+
+// Initialize when page loads
+window.addEventListener('load', () => {
+    console.log('InoBill PWA: Page loaded');
+    // Additional initialization if needed
+});
+
+// Print Bill Function
+function printBill() {
+    if (participants.length === 0) {
+        showError('Error', 'Belum ada peserta yang ditambahkan');
+        return;
+    }
+
+    // Create simple print content
+    const printContent = generateSimplePrintContent();
+    
+    // Create new window for printing
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>InoBill - Split Bill Receipt</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.3;
+                    color: #333;
+                    background: white;
+                    padding: 15px;
+                    font-size: 12px;
+                    margin: 0;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 15px;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #0174BE;
+                }
+                .header h1 {
+                    color: #0174BE;
+                    margin: 0;
+                    font-size: 20px;
+                }
+                .header p {
+                    color: #666;
+                    margin: 3px 0 0 0;
+                    font-size: 11px;
+                }
+                .bill-info {
+                    background: #f8fafc;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin-bottom: 15px;
+                    border-left: 3px solid #0174BE;
+                    font-size: 11px;
+                }
+                .bill-info p {
+                    margin: 2px 0;
+                }
+                .print-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 15px;
+                    font-size: 11px;
+                }
+                .print-table th,
+                .print-table td {
+                    border: 1px solid #ddd;
+                    padding: 6px 8px;
+                    text-align: left;
+                    vertical-align: top;
+                }
+                .print-table th {
+                    background-color: #0174BE;
+                    color: white;
+                    font-weight: 600;
+                    text-align: center;
+                    font-size: 11px;
+                }
+                .print-table td {
+                    background-color: white;
+                }
+                .print-table tr:nth-child(even) td {
+                    background-color: #f9f9f9;
+                }
+                .print-table td:first-child {
+                    font-weight: 500;
+                    background-color: #f0f8ff;
+                    text-align: right;
+                    vertical-align: middle;
+                }
+                .print-table td:nth-child(2) {
+                    text-align: right;
+                }
+                .print-table td:nth-child(3),
+                .print-table td:nth-child(4),
+                .print-table td:nth-child(5) {
+                    text-align: right;
+                }
+                .print-table td:last-child {
+                    vertical-align: middle;
+                }
+                .summary-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 15px;
+                    font-size: 11px;
+                }
+                .summary-table td {
+                    border: 1px solid #ddd;
+                    padding: 6px 8px;
+                    text-align: left;
+                }
+                .summary-table td:last-child {
+                    text-align: right;
+                    font-weight: 600;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    padding-top: 15px;
+                    border-top: 1px solid #ddd;
+                    color: #666;
+                    font-size: 10px;
+                }
+                @media print {
+                    body { margin: 0; padding: 10px; }
+                    @page { 
+                        margin: 0.3in; 
+                        size: A4;
+                    }
+                    .print-table { 
+                        page-break-inside: avoid; 
+                        font-size: 10px;
+                    }
+                    .print-table th,
+                    .print-table td { 
+                        font-size: 9px; 
+                        padding: 4px 6px; 
+                    }
+                    .summary-table {
+                        page-break-inside: avoid;
+                        font-size: 10px;
+                    }
+                    .summary-table td {
+                        font-size: 9px;
+                        padding: 4px 6px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            ${printContent}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Wait for content to load then print
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+    
     showNotification('Bill berhasil dicetak!', 'success');
 }
 
@@ -1374,14 +2954,16 @@ function shareBill() {
         return;
     }
 
-    // Direct share as URL
-    shareAsUrl();
-}
+    if (!lastCalculationResults) {
+        showError('Error', 'Hitung tagihan terlebih dahulu');
+        return;
+    }
 
-// Share as Text
-function shareAsText() {
-    const shareText = generateShareText();
-    const shareUrl = window.location.href;
+    // Generate shareable URL
+    const shareUrl = generateShareableLink();
+    
+    // Create share text
+    const shareText = `🍽️ InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
     
     if (navigator.share) {
         // Use native share API if available
@@ -1393,11 +2975,32 @@ function shareAsText() {
             showNotification('Bill berhasil dibagikan!', 'success');
         }).catch((error) => {
             console.log('Error sharing:', error);
-            fallbackShare(shareText, shareUrl);
+            fallbackShare(shareText);
         });
     } else {
         // Fallback to copy to clipboard
-        fallbackShare(shareText, shareUrl);
+        fallbackShare(shareText);
+    }
+}
+
+// Share as Text
+function shareAsText() {
+    const shareText = generateShareText();
+    
+    if (navigator.share) {
+        // Use native share API if available
+        navigator.share({
+            title: 'InoBill - Split Bill Receipt',
+            text: shareText
+        }).then(() => {
+            showNotification('Bill berhasil dibagikan!', 'success');
+        }).catch((error) => {
+            console.log('Error sharing:', error);
+            fallbackShare(shareText);
+        });
+    } else {
+        // Fallback to copy to clipboard
+        fallbackShare(shareText);
     }
 }
 
@@ -1493,10 +3096,8 @@ function shareAsUrl() {
 
 // Share as JSON File
 function shareAsJson() {
-    const billData = calculateBillData();
-    
-    if (billData.results.length === 0) {
-        showError('Error', 'Belum ada data untuk dibagikan');
+    if (participants.length === 0) {
+        showError('Error', 'Belum ada peserta yang ditambahkan');
         return;
     }
     
@@ -1511,9 +3112,7 @@ function shareAsJson() {
             menuItems: menuItems,
             additionalCosts: additionalCosts,
             orders: orders,
-            discount: discount,
-            results: billData.results,
-            summary: billData.summary
+            discount: discount
         }
     };
     
@@ -1567,11 +3166,9 @@ function shareAsJson() {
 }
 
 // Fallback Share Function
-function fallbackShare(shareText, shareUrl) {
-    const fullText = `${shareText}\n\nLihat detail lengkap di: ${shareUrl}`;
-    
+function fallbackShare(shareText) {
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(fullText).then(() => {
+        navigator.clipboard.writeText(shareText).then(() => {
             Swal.fire({
                 title: 'Berhasil!',
                 text: 'Bill telah disalin ke clipboard. Anda bisa paste di aplikasi lain.',
@@ -1584,7 +3181,7 @@ function fallbackShare(shareText, shareUrl) {
     } else {
         // Fallback for older browsers
         const textArea = document.createElement('textarea');
-        textArea.value = fullText;
+        textArea.value = shareText;
         document.body.appendChild(textArea);
         textArea.select();
         try {
@@ -1606,6 +3203,11 @@ function fallbackShare(shareText, shareUrl) {
 function downloadBill() {
     if (participants.length === 0) {
         showError('Error', 'Belum ada peserta yang ditambahkan');
+        return;
+    }
+
+    if (!lastCalculationResults) {
+        showError('Error', 'Hitung tagihan terlebih dahulu');
         return;
     }
 
@@ -1667,15 +3269,11 @@ function generateBillContent() {
             });
         }
         
-        // Add factor calculation info
+        // Hide factor calculation info for secrecy
         content += `
             <div class="order-item" style="border-top: 2px solid #e5e7eb; margin-top: 10px; padding-top: 10px;">
                 <span class="order-name">Subtotal Makanan:</span>
                 <span class="order-price">${formatCurrency(result.originalAmount)}</span>
-            </div>
-            <div class="order-item">
-                <span class="order-name">Faktor Pembagi (${billData.summary.factor.toFixed(4)}):</span>
-                <span class="order-price">× ${billData.summary.factor.toFixed(4)}</span>
             </div>
         `;
         
@@ -1744,7 +3342,7 @@ function generateCompactBillContent() {
         </div>
     `;
     
-    // Create table for participant details
+    // Create table for participant details (factor column hidden for secrecy)
     content += `
         <table class="bill-table">
             <thead>
@@ -1754,7 +3352,6 @@ function generateCompactBillContent() {
                     <th>Qty</th>
                     <th>Harga</th>
                     <th>Subtotal</th>
-                    <th>Faktor</th>
                     <th>Total</th>
                 </tr>
             </thead>
@@ -1780,7 +3377,6 @@ function generateCompactBillContent() {
                             <td>${order.quantity}</td>
                             <td>${formatCurrency(menuItem.price)}</td>
                             <td>${formatCurrency(itemTotal)}</td>
-                            <td>${index === 0 ? billData.summary.factor.toFixed(4) : ''}</td>
                             <td>${formatCurrency(adjustedTotal)}</td>
                         </tr>
                     `;
@@ -1798,11 +3394,37 @@ function generateCompactBillContent() {
                     <td>-</td>
                     <td>-</td>
                     <td>0</td>
-                    <td>${billData.summary.factor.toFixed(4)}</td>
                     <td>0</td>
                 </tr>
             `;
         }
+    });
+    
+    content += `
+            </tbody>
+        </table>
+    `;
+    
+    // Add participant totals table
+    content += `
+        <table class="bill-table" style="margin: 20px 0;">
+            <thead>
+                <tr>
+                    <th style="background-color: #0174BE; color: white; font-weight: 600;">Peserta</th>
+                    <th style="background-color: #0174BE; color: white; font-weight: 600;">Total Bayar</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Add each participant's total
+    billData.results.forEach(result => {
+        content += `
+            <tr>
+                <td style="font-weight: 600; background-color: #f0f8ff;">${result.participant}</td>
+                <td style="text-align: right; font-weight: 700; color: #0174BE;">${formatCurrency(result.adjustedAmount)}</td>
+            </tr>
+        `;
     });
     
     content += `
@@ -1927,22 +3549,26 @@ function calculateBillData() {
 
 // Generate Share Text
 function generateShareText() {
-    const currentDate = new Date().toLocaleDateString('id-ID');
-    const billData = calculateBillData();
+    if (!lastCalculationResults) {
+        return 'Belum ada data untuk dibagikan';
+    }
     
-    if (billData.results.length === 0) {
+    const { results, totalBill, summary } = lastCalculationResults;
+    const currentDate = new Date().toLocaleDateString('id-ID');
+    
+    if (results.length === 0) {
         return 'Belum ada data untuk dibagikan';
     }
     
     let text = `🍽️ *InoBill - Split Bill Receipt*\n`;
     text += `📅 ${currentDate}\n\n`;
-    text += `👥 *Peserta (${billData.results.length} orang):*\n`;
+    text += `👥 *Peserta (${results.length} orang):*\n`;
     
-    billData.results.forEach(result => {
-        text += `• ${result.participant}: ${formatCurrency(result.adjustedAmount)}\n`;
+    results.forEach(result => {
+        text += `• ${result.participant}: ${formatCurrency(result.amount)}\n`;
     });
     
-    text += `\n💰 *Grand Total: ${formatCurrency(billData.summary.totalBill)}*\n\n`;
+    text += `\n💰 *Grand Total: ${formatCurrency(totalBill)}*\n\n`;
     text += `Dibuat dengan InoBill PWA oleh InoTechno`;
     
     return text;
@@ -1950,12 +3576,6 @@ function generateShareText() {
 
 // Generate Shareable Link
 function generateShareableLink() {
-    const billData = calculateBillData();
-    
-    if (billData.results.length === 0) {
-        return window.location.href;
-    }
-    
     // Create data object for sharing
     const shareData = {
         participants: participants,
@@ -1963,8 +3583,6 @@ function generateShareableLink() {
         additionalCosts: additionalCosts,
         orders: orders,
         discount: discount,
-        results: billData.results,
-        summary: billData.summary,
         timestamp: new Date().toISOString()
     };
     
@@ -1997,6 +3615,9 @@ function loadDataFromUrl() {
                 orders = decodedData.orders || {};
                 discount = decodedData.discount || { amount: 0, percentage: 0, type: 'menu' };
                 
+                // Save to localStorage
+                saveData();
+                
                 // Re-render everything
                 renderAll();
                 
@@ -2008,6 +3629,9 @@ function loadDataFromUrl() {
                 window.history.replaceState({}, document.title, newUrl);
                 
                 return true;
+            } else {
+                console.error('Invalid data structure in URL');
+                showError('Error', 'Data dari link tidak valid');
             }
         } catch (error) {
             console.error('Error loading data from URL:', error);
@@ -2016,6 +3640,218 @@ function loadDataFromUrl() {
     }
     
     return false;
+}
+
+// Generate Simple Print Content
+function generateSimplePrintContent() {
+    const currentDate = new Date().toLocaleDateString('id-ID', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    const currentTime = new Date().toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    let content = `
+        <div class="header">
+            <h1>🍽️ InoBill</h1>
+            <p>Smart Bill Splitter</p>
+        </div>
+        
+        <div class="bill-info">
+            <p><strong>Tanggal:</strong> ${currentDate}</p>
+            <p><strong>Waktu:</strong> ${currentTime}</p>
+            <p><strong>Total Peserta:</strong> ${participants.length} orang</p>
+        </div>
+        
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th>Peserta</th>
+                    <th>Menu</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Debug: Log all data
+    console.log('Print Debug - Participants:', participants);
+    console.log('Print Debug - MenuItems:', menuItems);
+    console.log('Print Debug - Orders:', orders);
+    
+    // Add participant orders in table format
+    participants.forEach(participant => {
+        const participantOrders = orders[participant] || [];
+        let hasOrders = false;
+        let participantSubtotal = 0;
+        let orderItems = [];
+        
+        // Collect all orders for this participant
+        if (Array.isArray(participantOrders) && participantOrders.length > 0) {
+            participantOrders.forEach((order) => {
+                if (order && order.type === 'menu' && typeof order.index === 'number' && order.quantity > 0) {
+                    const menuItem = menuItems[order.index];
+                    if (menuItem) {
+                        const itemTotal = menuItem.price * order.quantity;
+                        participantSubtotal += itemTotal;
+                        orderItems.push({
+                            name: menuItem.name,
+                            quantity: order.quantity,
+                            price: menuItem.price,
+                            total: itemTotal
+                        });
+                        hasOrders = true;
+                    }
+                }
+            });
+        }
+        
+        if (hasOrders && orderItems.length > 0) {
+            // Add first row with participant name and subtotal
+            content += `
+                <tr>
+                    <td rowspan="${orderItems.length}">${participant}</td>
+                    <td>${orderItems[0].name}</td>
+                    <td>${orderItems[0].quantity}</td>
+                    <td>${formatCurrency(orderItems[0].price)}</td>
+                    <td rowspan="${orderItems.length}">${formatCurrency(participantSubtotal)}</td>
+                </tr>
+            `;
+            
+            // Add remaining rows without participant name
+            for (let i = 1; i < orderItems.length; i++) {
+                content += `
+                    <tr>
+                        <td>${orderItems[i].name}</td>
+                        <td>${orderItems[i].quantity}</td>
+                        <td>${formatCurrency(orderItems[i].price)}</td>
+                    </tr>
+                `;
+            }
+        } else {
+            // If no orders, show participant with empty row
+            content += `
+                <tr>
+                    <td>${participant}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>${formatCurrency(0)}</td>
+                </tr>
+            `;
+        }
+    });
+    
+    content += `
+            </tbody>
+        </table>
+        
+        <table class="summary-table">
+            <tbody>
+    `;
+    
+    // Calculate totals
+    let totalSubtotal = 0;
+    let totalAdditionalCosts = 0;
+    let totalDiscount = 0;
+    
+    // Calculate total subtotal from all participants
+    participants.forEach(participant => {
+        const participantOrders = orders[participant] || [];
+        if (Array.isArray(participantOrders) && participantOrders.length > 0) {
+            participantOrders.forEach((order) => {
+                if (order && order.type === 'menu' && typeof order.index === 'number' && order.quantity > 0) {
+                    const menuItem = menuItems[order.index];
+                    if (menuItem) {
+                        totalSubtotal += menuItem.price * order.quantity;
+                    }
+                }
+            });
+        }
+    });
+    
+    // Add subtotal row
+    content += `
+        <tr>
+            <td><strong>Sub Total</strong></td>
+            <td>${formatCurrency(totalSubtotal)}</td>
+        </tr>
+    `;
+    
+    // Add additional costs
+    if (additionalCosts.length > 0) {
+        additionalCosts.forEach(cost => {
+            let costValue = 0;
+            if (cost.type === 'fixed') {
+                costValue = cost.amount || 0;
+            } else if (cost.type === 'percentage') {
+                costValue = (totalSubtotal * (cost.amount || 0)) / 100;
+            }
+            totalAdditionalCosts += costValue;
+            
+            content += `
+                <tr>
+                    <td><strong>${cost.name}</strong></td>
+                    <td>${formatCurrency(costValue)}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    // Add discount
+    if (discount && (discount.amount > 0 || discount.percentage > 0)) {
+        if (discount.amount > 0) {
+            totalDiscount = discount.amount;
+            content += `
+                <tr>
+                    <td><strong>Diskon (${discount.type === 'menu' ? 'Setelah Menu' : 'Dari Total Semua'})</strong></td>
+                    <td style="color: #10b981;">-${formatCurrency(totalDiscount)}</td>
+                </tr>
+            `;
+        } else if (discount.percentage > 0) {
+            if (discount.type === 'menu') {
+                totalDiscount = (totalSubtotal * discount.percentage) / 100;
+            } else {
+                totalDiscount = ((totalSubtotal + totalAdditionalCosts) * discount.percentage) / 100;
+            }
+            content += `
+                <tr>
+                    <td><strong>Diskon ${discount.percentage}% (${discount.type === 'menu' ? 'Setelah Menu' : 'Dari Total Semua'})</strong></td>
+                    <td style="color: #10b981;">-${formatCurrency(totalDiscount)}</td>
+                </tr>
+            `;
+        }
+    }
+    
+    // Calculate grand total
+    const grandTotal = totalSubtotal + totalAdditionalCosts - totalDiscount;
+    
+    // Add grand total row
+    content += `
+        <tr style="border-top: 2px solid #0174BE; font-weight: bold; font-size: 14px;">
+            <td><strong>TOTAL</strong></td>
+            <td><strong>${formatCurrency(grandTotal)}</strong></td>
+        </tr>
+    `;
+    
+    content += `
+            </tbody>
+        </table>
+        
+        <div class="footer">
+            <p>Dibuat dengan InoBill PWA oleh InoTechno</p>
+            <p>www.inotechno.com</p>
+        </div>
+    `;
+    
+    return content;
 }
 
 // Import JSON File
@@ -2181,3 +4017,195 @@ window.shareAsLink = shareAsLink;
 window.shareAsUrl = shareAsUrl;
 window.shareAsJson = shareAsJson;
 window.importJsonFile = importJsonFile;
+window.closeModalManually = closeModalManually;
+window.clearDiscount = clearDiscount;
+window.increaseQuantity = increaseQuantity;
+window.decreaseQuantity = decreaseQuantity;
+window.updateQuantity = updateQuantity;
+
+// Show Discount Modal
+function showDiscountModal() {
+    // Reset form values first
+    const discountAmount = document.getElementById('discountAmount');
+    const discountPercentage = document.getElementById('discountPercentage');
+    const discountType = document.getElementById('discountType');
+    const discountInfo = document.getElementById('discountInfo');
+    
+    if (discountAmount) discountAmount.value = discount.amount || '';
+    if (discountPercentage) discountPercentage.value = discount.percentage || '';
+    if (discountInfo) discountInfo.style.display = 'none';
+    
+    // Set discount type in custom select
+    try {
+        resetCustomSelect('discountType', discount.type || 'menu', 
+            discount.type === 'menu' ? 'Setelah Menu' : 'Dari Total Semua');
+    } catch (error) {
+        console.warn('InoBill PWA: Error setting discount type in modal');
+    }
+    
+    // Show modal
+    showModal('discountModal');
+    
+    // Focus on first input
+    setTimeout(() => {
+        if (discountAmount) discountAmount.focus();
+    }, 100);
+}
+
+// Apply Discount - enforces single discount policy
+function applyDiscount() {
+    const discountAmount = document.getElementById('discountAmount');
+    const discountPercentage = document.getElementById('discountPercentage');
+    
+    if (!discountAmount || !discountPercentage) {
+        showError('Error', 'Form discount tidak ditemukan');
+        return;
+    }
+    
+    const amountValue = parseFloat(discountAmount.value) || 0;
+    const percentageValue = parseFloat(discountPercentage.value) || 0;
+    
+    // Validation: at least one value must be provided
+    if (amountValue === 0 && percentageValue === 0) {
+        showError('Error Input', 'Masukkan nilai diskon (Rp atau %)');
+        discountAmount.focus();
+        return;
+    }
+    
+    // Validation: negative values not allowed
+    if (amountValue < 0 || percentageValue < 0) {
+        showError('Error Input', 'Nilai diskon tidak boleh negatif');
+        return;
+    }
+    
+    // Validation: percentage should not exceed 100%
+    if (percentageValue > 100) {
+        showError('Error Input', 'Diskon persentase tidak boleh lebih dari 100%');
+        discountPercentage.focus();
+        return;
+    }
+    
+    // Enforce single discount policy: prioritize amount over percentage
+    if (amountValue > 0 && percentageValue > 0) {
+        // Clear percentage and show warning
+        discountPercentage.value = '';
+        showNotification('Hanya satu jenis diskon yang diizinkan. Menggunakan diskon Rp.', 'warning');
+    }
+    
+    // Get discount type
+    let discountType = 'menu';
+    try {
+        discountType = getCustomSelectValue('discountType') || 'menu';
+    } catch (error) {
+        console.warn('InoBill PWA: Error getting discount type, using default');
+    }
+    
+    // Apply single discount policy
+    discount = {
+        amount: amountValue > 0 ? amountValue : 0,
+        percentage: amountValue > 0 ? 0 : percentageValue, // Only use percentage if no amount
+        type: discountType
+    };
+    
+    // Save and update
+    saveData();
+    renderDiscount();
+    calculateSplit();
+    
+    // Close modal
+    closeModal('discountModal');
+    
+    // Show success message
+    const discountText = discount.amount > 0 
+        ? `Rp ${formatCurrency(discount.amount)}` 
+        : `${discount.percentage}%`;
+    const typeText = discount.type === 'menu' ? 'setelah menu' : 'dari total semua';
+    
+    showNotification(`Diskon ${discountText} (${typeText}) berhasil diterapkan`, 'success');
+}
+
+// Clear Discount
+function clearDiscount() {
+    // Reset discount object to default
+    discount = { amount: 0, percentage: 0, type: 'menu' };
+    
+    // Save and update
+    saveData();
+    renderDiscount();
+    calculateSplit();
+    
+    // Show success message
+    showNotification('Diskon berhasil dihapus', 'success');
+}
+
+// Show Modal
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Close Modal
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+    }
+}
+
+// Close Modal Manually (for preventing auto-close after add)
+function closeModalManually(modalId) {
+    closeModal(modalId);
+}
+
+// Card Collapse Functionality
+function toggleCardCollapse(cardContentId) {
+    const cardContent = document.getElementById(cardContentId);
+    const card = cardContent.closest('.card');
+    const collapseIcon = card.querySelector('.collapse-icon');
+    
+    if (card.classList.contains('collapsed')) {
+        // Expand card
+        card.classList.remove('collapsed');
+        collapseIcon.textContent = '▼';
+        localStorage.setItem(`card-${cardContentId}-collapsed`, 'false');
+    } else {
+        // Collapse card
+        card.classList.add('collapsed');
+        collapseIcon.textContent = '▶';
+        localStorage.setItem(`card-${cardContentId}-collapsed`, 'true');
+    }
+}
+
+// Load card collapse states
+function loadCardStates() {
+    const cardIds = ['participantsCard', 'menuCard', 'additionalCostsCard', 'discountCard', 'ordersCard', 'resultsCard'];
+    
+    cardIds.forEach(cardId => {
+        const isCollapsed = localStorage.getItem(`card-${cardId}-collapsed`) === 'true';
+        const cardContent = document.getElementById(cardId);
+        
+        if (cardContent) {
+            const card = cardContent.closest('.card');
+            const collapseIcon = card.querySelector('.collapse-icon');
+            
+            if (isCollapsed) {
+                card.classList.add('collapsed');
+                if (collapseIcon) {
+                    collapseIcon.textContent = '▶';
+                }
+            }
+        }
+    });
+}
+
+// Export new modal functions
+window.showDiscountModal = showDiscountModal;
+window.showModal = showModal;
+window.closeModal = closeModal;
+window.toggleCardCollapse = toggleCardCollapse;

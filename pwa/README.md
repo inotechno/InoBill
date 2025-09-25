@@ -1,256 +1,169 @@
-# 📱 InoBill PWA - Progressive Web App
+# InoBill PWA v1.1.0
 
-> **Progressive Web App version of InoBill - A fair and easy split bill calculator with offline support, installable on any device.**
+**Smart Bill Splitter - Fair & Easy**
 
-## ✨ PWA Features
+A Progressive Web App (PWA) for fair and easy bill splitting. Perfect for restaurants, cafes, and group dining experiences.
 
-### 🚀 **Core PWA Capabilities**
-- **Installable** - Install on desktop, mobile, and tablet
+## 🚀 Features
+
+### Core Functionality
+- **Real-time Calculations** - Instant bill splitting with live updates
+- **Fair Distribution** - Smart algorithm for equitable cost sharing
+- **Multiple Participants** - Support for unlimited participants
+- **Menu Management** - Add and manage menu items with quantities
+- **Additional Costs** - Handle parking, service charges, and other fees
+- **Discount System** - Apply percentage or fixed amount discounts
+
+### User Experience
+- **Progressive Web App** - Install on any device, works offline
+- **Responsive Design** - Optimized for mobile, tablet, and desktop
+- **Dark/Light Theme** - Toggle between themes for comfort
+- **Card Collapse** - Organize interface with collapsible sections
+- **Modern UI** - Clean, professional design with custom branding
+
+### Sharing & Export
+- **Print Bills** - Generate printer-friendly receipts
+- **Share Links** - Send shareable URLs for collaboration
+- **JSON Export** - Download data for backup or import
+- **URL Sharing** - Direct links with embedded data
+
+## 🎯 Version 1.1.0 Highlights
+
+### ✨ New Features
+- **Custom Logo Integration** - Professional branding with your logo
+- **Enhanced Header Design** - Modern gradient with feature highlights
+- **Card Collapse Functionality** - Better space management
+- **Improved Mobile Experience** - Better padding and responsive design
+
+### 🎨 UI/UX Improvements
+- **Modern Color Scheme** - Professional slate gradient theme
+- **Feature Tags** - Highlight app capabilities (Real-time, PWA, Fast)
+- **Better Spacing** - Consistent padding and margins
+- **Enhanced Responsiveness** - Optimized for all screen sizes
+
+### 🔧 Technical Improvements
+- **Independent Card Heights** - Cards don't affect each other when collapsed
+- **Better Mobile Layout** - Fixed padding and spacing issues
+- **Improved Performance** - Optimized CSS and responsive design
+- **Enhanced PWA Support** - Better manifest and theme integration
+
+## 🛠️ Installation
+
+### As PWA (Recommended)
+1. Visit the app in your browser
+2. Look for the install prompt or use browser menu
+3. Click "Install" to add to your device
+4. Access from your home screen or app drawer
+
+### Development Setup
+```bash
+# Clone the repository
+git clone https://github.com/inotechno/inobill-pwa.git
+
+# Navigate to the directory
+cd inobill-pwa/pwa
+
+# Start local server
+python3 -m http.server 8000
+
+# Or use Node.js
+npx serve .
+
+# Access at http://localhost:8000
+```
+
+## 📱 Usage
+
+### Basic Workflow
+1. **Add Participants** - Enter names of people sharing the bill
+2. **Add Menu Items** - Add food/drink items with prices
+3. **Set Orders** - Assign menu items to participants with quantities
+4. **Add Additional Costs** - Include parking, service charges, etc.
+5. **Apply Discounts** - Add percentage or fixed discounts
+6. **Calculate** - Get fair split results instantly
+7. **Share/Print** - Export or share the results
+
+### Advanced Features
+- **Quantity Management** - Set different quantities per person
+- **Multiple Discounts** - Apply various discount types
+- **Real-time Updates** - See changes instantly
 - **Offline Support** - Works without internet connection
-- **Fast Loading** - Cached resources for instant access
-- **Responsive** - Optimized for all screen sizes
-- **App-like Experience** - Native app feel in browser
 
-### 📱 **Installation**
-- **Desktop**: Click install button in address bar or install banner
-- **Mobile**: Add to home screen from browser menu
-- **Tablet**: Install from browser or app store (if available)
+## 🎨 Customization
 
-### 🔄 **Offline Functionality**
-- **Cached Resources** - All files cached for offline use
-- **Data Persistence** - Local storage for calculations
-- **Background Sync** - Sync when connection restored
-- **Offline Page** - Custom offline experience
+### Logo Integration
+- Replace `icons/logo.png` with your custom logo
+- Update favicon references in HTML
+- Adjust header colors to match your brand
 
-## 🛠️ Technical Details
+### Theme Colors
+- Modify CSS variables in `style.css`
+- Update manifest.json theme colors
+- Customize gradient backgrounds
 
-### **Service Worker**
-- **Cache Strategy** - Static files cached on install
-- **Dynamic Caching** - Network requests cached
-- **Update Handling** - Automatic updates with user notification
-- **Background Sync** - Data sync when online
+## 📊 Technical Details
 
-### **Manifest**
-- **App Identity** - Name, description, icons
-- **Display Mode** - Standalone app experience
-- **Theme Colors** - Brand colors (#0174BE, #0C356A)
-- **Shortcuts** - Quick actions from app icon
-- **Screenshots** - App store style screenshots
+### Technologies Used
+- **HTML5** - Semantic markup
+- **CSS3** - Modern styling with CSS Grid/Flexbox
+- **JavaScript ES6+** - Modern JavaScript features
+- **PWA** - Service Worker, Web App Manifest
+- **Local Storage** - Data persistence
 
-### **Icons**
-- **Multiple Sizes** - 72x72 to 512x512 pixels
-- **Maskable Icons** - Adaptive to different platforms
-- **High Quality** - Crisp on all screen densities
+### Browser Support
+- Chrome 80+
+- Firefox 75+
+- Safari 13+
+- Edge 80+
+- Mobile browsers (iOS Safari, Chrome Mobile)
 
-## 📁 File Structure
+### Performance
+- **Lighthouse Score** - 95+ across all metrics
+- **Fast Loading** - Optimized assets and caching
+- **Offline First** - Works without internet
+- **Responsive** - Adapts to any screen size
 
-```
-pwa/
-├── 📄 index.html              # Main PWA HTML
-├── 🎨 style.css               # PWA-specific styling
-├── ⚡ script.js               # Main application logic
-├── 🔧 pwa.js                  # PWA-specific features
-├── 📋 manifest.json           # PWA manifest
-├── 🔄 sw.js                   # Service worker
-├── 📱 offline.html            # Offline page
-├── 🖼️ icons/                  # App icons
-│   ├── icon-72x72.png
-│   ├── icon-96x96.png
-│   ├── icon-128x128.png
-│   ├── icon-144x144.png
-│   ├── icon-152x152.png
-│   ├── icon-192x192.png
-│   ├── icon-384x384.png
-│   └── icon-512x512.png
-├── 📸 screenshots/            # App screenshots
-│   ├── desktop-screenshot.png
-│   └── mobile-screenshot.png
-└── 📖 README.md               # This file
-```
+## 🔄 Version History
 
-## 🚀 Getting Started
+### v1.1.0 (2024-12-25)
+- Custom logo integration
+- Enhanced header design
+- Card collapse functionality
+- Improved mobile responsiveness
+- Modern color scheme
 
-### **Local Development**
-```bash
-# Serve the PWA locally
-python -m http.server 8000
-# or
-npx serve pwa
-```
-
-### **Production Deployment**
-```bash
-# Deploy to any static hosting
-# - GitHub Pages
-# - Netlify
-# - Vercel
-# - Firebase Hosting
-# - AWS S3
-```
-
-### **HTTPS Requirement**
-- PWA requires HTTPS in production
-- Service workers only work over HTTPS
-- Local development (localhost) is exempt
-
-## 🔧 Configuration
-
-### **Manifest Customization**
-Edit `manifest.json` to customize:
-- App name and description
-- Theme colors
-- Icons and screenshots
-- Display mode
-- Shortcuts
-
-### **Service Worker**
-Edit `sw.js` to customize:
-- Cache strategy
-- Offline behavior
-- Update handling
-- Background sync
-
-### **Icons**
-Replace icons in `icons/` folder:
-- Use same icon in different sizes
-- Ensure high quality (PNG format)
-- Follow platform guidelines
-
-## 📊 Performance
-
-### **Lighthouse Scores**
-- **Performance**: 95+
-- **Accessibility**: 95+
-- **Best Practices**: 95+
-- **SEO**: 95+
-- **PWA**: 100
-
-### **Core Web Vitals**
-- **LCP**: < 2.5s (Largest Contentful Paint)
-- **FID**: < 100ms (First Input Delay)
-- **CLS**: < 0.1 (Cumulative Layout Shift)
-
-## 🔒 Security
-
-### **Content Security Policy**
-- Strict CSP headers
-- No inline scripts (except service worker)
-- External resources whitelisted
-
-### **Data Privacy**
-- No data sent to external servers
-- All data stored locally
-- User controls all data
-
-## 🌐 Browser Support
-
-### **Full Support**
-- Chrome 68+
-- Firefox 63+
-- Safari 11.1+
-- Edge 79+
-
-### **Partial Support**
-- Safari iOS 11.3+
-- Chrome Android 68+
-- Samsung Internet 7.0+
-
-## 📱 Platform Features
-
-### **Desktop**
-- Install from browser
-- App-like window
-- System integration
-- Keyboard shortcuts
-
-### **Mobile**
-- Add to home screen
-- Full screen experience
-- Touch optimizations
-- Offline functionality
-
-### **Tablet**
+### v1.0.0 (2024-01-01)
+- Initial release
+- Core bill splitting functionality
+- PWA capabilities
 - Responsive design
-- Touch and mouse support
-- Split screen compatibility
-- App store distribution
-
-## 🔄 Updates
-
-### **Automatic Updates**
-- Service worker updates automatically
-- User notified of new version
-- One-click update process
-- No app store required
-
-### **Version Management**
-- Semantic versioning
-- Changelog tracking
-- Rollback capability
-- A/B testing support
-
-## 🐛 Troubleshooting
-
-### **Install Issues**
-- Ensure HTTPS in production
-- Check manifest.json validity
-- Verify service worker registration
-- Clear browser cache
-
-### **Offline Issues**
-- Check service worker status
-- Verify cache storage
-- Test network conditions
-- Review console errors
-
-### **Performance Issues**
-- Monitor Lighthouse scores
-- Check Core Web Vitals
-- Optimize images and assets
-- Review service worker strategy
-
-## 📈 Analytics
-
-### **PWA Metrics**
-- Install rate
-- Engagement rate
-- Offline usage
-- Update adoption
-
-### **User Experience**
-- Page load times
-- Interaction delays
-- Error rates
-- User satisfaction
+- Offline support
 
 ## 🤝 Contributing
 
-### **Development Setup**
-1. Clone repository
-2. Serve PWA locally
-3. Make changes
-4. Test on multiple devices
-5. Submit pull request
-
-### **Testing Checklist**
-- [ ] Install on desktop
-- [ ] Install on mobile
-- [ ] Test offline functionality
-- [ ] Verify updates work
-- [ ] Check all browsers
-- [ ] Validate manifest
-- [ ] Test service worker
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ## 📄 License
 
-MIT License - see main repository LICENSE file.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 👨‍💻 Author
 
-- **Issues**: [GitHub Issues](https://github.com/inotechno/inobill/issues)
-- **Email**: info@inotechno.com
-- **Documentation**: [Main README](../README.md)
+**InoTechno**
+- Website: [inotechno.my.id](https://inotechno.my.id)
+- Email: info@inotechno.my.id
+
+## 🙏 Acknowledgments
+
+- Built with modern web technologies
+- Inspired by the need for fair bill splitting
+- Community feedback and suggestions
+- Open source libraries and tools
 
 ---
 
-**Made with ❤️ by [InoTechno](https://inotechno.com)**
+**InoBill PWA v1.1.0** - Making bill splitting fair and easy! 🍽️✨
