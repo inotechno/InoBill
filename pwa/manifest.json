@@ -67,35 +67,49 @@
       "sizes": "375x667",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "InoBill Mobile View"
+      "label": "InoBill Mobile - iPhone 13 Pro"
     },
     {
       "src": "screenshots/iPhone-13-PRO-localhost.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "InoBill Mobile View"
+      "label": "InoBill Mobile - iPhone 12/13"
+    },
+    {
+      "src": "screenshots/iPhone-13-PRO-localhost.png",
+      "sizes": "414x896",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "InoBill Mobile - iPhone 11 Pro Max"
+    },
+    {
+      "src": "screenshots/iPhone-13-PRO-localhost.png",
+      "sizes": "360x640",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "InoBill Mobile - Android Standard"
     },
     {
       "src": "screenshots/Galaxy-Tab-S7-localhost.png",
       "sizes": "1024x768",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "InoBill Tablet View"
+      "label": "InoBill Tablet - Galaxy Tab S7"
     },
     {
       "src": "screenshots/Macbook-Air-localhost.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "InoBill Desktop View"
+      "label": "InoBill Desktop - MacBook Air"
     },
     {
       "src": "screenshots/Macbook-Air-localhost.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "InoBill Desktop View"
+      "label": "InoBill Desktop - Full HD"
     }
   ],
   "shortcuts": [
