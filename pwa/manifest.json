@@ -63,15 +63,15 @@
   ],
   "screenshots": [
     {
-      "src": "screenshots/Macbook-Air-localhost.png",
-      "sizes": "1280x720",
+      "src": "screenshots/iPhone-13-PRO-localhost.png",
+      "sizes": "375x667",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "InoBill Desktop View"
+      "form_factor": "narrow",
+      "label": "InoBill Mobile View"
     },
     {
       "src": "screenshots/iPhone-13-PRO-localhost.png",
-      "sizes": "375x667",
+      "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "InoBill Mobile View"
@@ -82,6 +82,20 @@
       "type": "image/png",
       "form_factor": "wide",
       "label": "InoBill Tablet View"
+    },
+    {
+      "src": "screenshots/Macbook-Air-localhost.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "InoBill Desktop View"
+    },
+    {
+      "src": "screenshots/Macbook-Air-localhost.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "InoBill Desktop View"
     }
   ],
   "shortcuts": [
