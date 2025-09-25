@@ -70,7 +70,15 @@ class InoBillPWA {
             console.log('InoBill PWA: Install prompt available');
             e.preventDefault();
             this.deferredPrompt = e;
-            this.showInstallBanner();
+            
+            // Check if banner was previously dismissed
+            const bannerDismissed = localStorage.getItem('inobill-banner-dismissed');
+            if (!bannerDismissed) {
+                // Show banner after a short delay
+                setTimeout(() => {
+                    this.showInstallBanner();
+                }, 2000);
+            }
         });
         
         // Handle app installed
@@ -126,7 +134,7 @@ class InoBillPWA {
         // Dismiss install button
         const dismissBtn = document.getElementById('pwa-dismiss-btn');
         if (dismissBtn) {
-            dismissBtn.addEventListener('click', () => this.hideInstallBanner());
+            dismissBtn.addEventListener('click', () => this.dismissInstallBanner());
         }
         
         // Update button
@@ -169,6 +177,7 @@ class InoBillPWA {
         const banner = document.getElementById('pwa-install-banner');
         if (banner) {
             banner.style.display = 'block';
+            banner.classList.add('show');
             document.querySelector('.container').classList.add('with-banner');
         }
     }
@@ -177,9 +186,18 @@ class InoBillPWA {
     hideInstallBanner() {
         const banner = document.getElementById('pwa-install-banner');
         if (banner) {
-            banner.style.display = 'none';
+            banner.classList.remove('show');
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 300); // Wait for animation
             document.querySelector('.container').classList.remove('with-banner');
         }
+    }
+    
+    // Dismiss install banner (with localStorage)
+    dismissInstallBanner() {
+        localStorage.setItem('inobill-banner-dismissed', 'true');
+        this.hideInstallBanner();
     }
     
     // Show update banner
@@ -411,7 +429,7 @@ class InoBillPWA {
     getAppInfo() {
         return {
             name: 'InoBill PWA',
-            version: '1.0.0',
+            version: '1.1.0',
             isInstalled: this.isInstalled,
             isOnline: this.isOnline,
             hasServiceWorker: !!this.serviceWorker,
@@ -419,6 +437,21 @@ class InoBillPWA {
             platform: navigator.platform,
             language: navigator.language
         };
+    }
+    
+    // Reset banner dismiss status (for testing)
+    resetBannerDismiss() {
+        localStorage.removeItem('inobill-banner-dismissed');
+        console.log('InoBill PWA: Banner dismiss status reset');
+    }
+    
+    // Force show install banner (for testing)
+    forceShowInstallBanner() {
+        if (this.deferredPrompt) {
+            this.showInstallBanner();
+        } else {
+            console.log('InoBill PWA: No deferred prompt available');
+        }
     }
 }
 
