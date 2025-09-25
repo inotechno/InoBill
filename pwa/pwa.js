@@ -71,21 +71,12 @@ class InoBillPWA {
             // Store the event for later use
             this.deferredPrompt = e;
             
-            // Try to show native prompt first
-            const nativePromptShown = localStorage.getItem('inobill-native-prompt-shown');
-            if (!nativePromptShown) {
-                setTimeout(() => {
-                    this.showNativeInstallPrompt();
-                    localStorage.setItem('inobill-native-prompt-shown', 'true');
-                }, 3000);
-            }
-            
-            // Show custom banner as fallback
+            // Show custom banner only (no automatic native prompt)
             const bannerDismissed = localStorage.getItem('inobill-banner-dismissed');
             if (!bannerDismissed) {
                 setTimeout(() => {
                     this.showInstallBanner();
-                }, 8000); // Show after native prompt attempt
+                }, 3000); // Show custom banner after 3 seconds
             }
         });
         
@@ -242,7 +233,7 @@ class InoBillPWA {
         }
     }
     
-    // Install app
+    // Install app (called on user gesture)
     async installApp() {
         if (!this.deferredPrompt) {
             this.showInstallError();
@@ -250,7 +241,7 @@ class InoBillPWA {
         }
         
         try {
-            // Show the install prompt
+            // Show the install prompt (this is called on user click, so it's allowed)
             this.deferredPrompt.prompt();
             
             // Wait for the user to respond to the prompt
@@ -273,15 +264,6 @@ class InoBillPWA {
         }
     }
     
-    // Show browser's native install prompt
-    showNativeInstallPrompt() {
-        if (this.deferredPrompt) {
-            this.deferredPrompt.prompt();
-        } else {
-            console.log('InoBill PWA: No deferred prompt available');
-            this.showInstallError();
-        }
-    }
     
     // Update app
     async updateApp() {
@@ -471,7 +453,6 @@ class InoBillPWA {
     // Reset all install prompt status (for testing)
     resetAllInstallStatus() {
         localStorage.removeItem('inobill-banner-dismissed');
-        localStorage.removeItem('inobill-native-prompt-shown');
         console.log('InoBill PWA: All install status reset');
     }
     
@@ -484,15 +465,6 @@ class InoBillPWA {
         }
     }
     
-    // Auto show native install prompt (alternative approach)
-    autoShowNativePrompt() {
-        if (this.deferredPrompt) {
-            // Show native prompt immediately
-            this.deferredPrompt.prompt();
-        } else {
-            console.log('InoBill PWA: No deferred prompt available for auto show');
-        }
-    }
 }
 
 // Initialize PWA when DOM is loaded
