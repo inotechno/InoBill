@@ -42,11 +42,11 @@
     --bg-secondary: #f8fafc;
     --bg-tertiary: #f1f5f9;
     
-    /* Text Colors */
-    --text-primary: #1a202c;
-    --text-secondary: #4a5568;
-    --text-tertiary: #718096;
-    --text-muted: #a0aec0;
+    /* Text Colors - Improved contrast ratios */
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-tertiary: #475569;
+    --text-muted: #64748b;
     
     /* Border Colors */
     --border-light: #e2e8f0;
@@ -347,10 +347,12 @@ body {
     justify-content: space-between;
 }
 
+.card-header h2,
 .card-header h3 {
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--text-primary);
+    margin: 0;
 }
 
 .btn-add {
