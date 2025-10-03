@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Firebase - InoBill</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 3px; white-space: pre-wrap; }
+        input { padding: 5px; margin: 5px; width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Firebase - InoBill</h1>
+    
+    <div class="debug-section">
+        <h3>1. Test Save & Load</h3>
+        <button onclick="testSaveAndLoad()">Test Save & Load</button>
+        <div id="save-load-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>2. List All Documents</h3>
+        <button onclick="listAllDocuments()">List All Documents</button>
+        <div id="list-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>3. Load Specific UUID</h3>
+        <input type="text" id="uuid-input" placeholder="Enter UUID to load">
+        <button onclick="loadSpecificUUID()">Load UUID</button>
+        <div id="load-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>4. Test Share URL</h3>
+        <input type="text" id="share-url" placeholder="Enter share URL">
+        <button onclick="testShareURL()">Test Share URL</button>
+        <div id="share-result"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCU_kr0Ah5h7ESnv4pHZA0zGj2Tdhpovwo",
+            authDomain: "inobill.firebaseapp.com",
+            projectId: "inobill",
+            storageBucket: "inobill.firebasestorage.app",
+            messagingSenderId: "632461365007",
+            appId: "1:632461365007:web:05d9a9daa75a4150ff387a",
+            measurementId: "G-BK4Q09S58P"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        
+        window.InoBillFirebase = {
+            db,
+            collection,
+            addDoc,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            limit
+        };
+        
+        console.log('Firebase initialized successfully');
+        
+        // Test functions
+        window.testSaveAndLoad = async function() {
+            const resultDiv = document.getElementById('save-load-result');
+            try {
+                const { db, collection, addDoc, getDocs, query, where } = window.InoBillFirebase;
+                
+                // Generate UUID
+                const uuid = 'debug-test-' + Date.now();
+                console.log('Generated UUID:', uuid);
+                
+                // Create test data
+                const testData = {
+                    id: uuid,
+                    data: {
+                        participants: ['Debug User 1', 'Debug User 2'],
+                        menuItems: [{ name: 'Debug Menu', price: 15000 }],
+                        orders: { 'Debug User 1': [{ type: 'menu', index: 0, quantity: 1 }] },
+                        timestamp: new Date().toISOString(),
+                        expires_at: Date.now() + (7 * 24 * 60 * 60 * 1000),
+                        created_at: Date.now()
+                    },
+                    created_at: Date.now(),
+                    expires_at: Date.now() + (7 * 24 * 60 * 60 * 1000)
+                };
+                
+                console.log('Saving data:', testData);
+                
+                // Save to Firebase
+                const docRef = await addDoc(collection(db, 'shared_bills'), testData);
+                console.log('Document saved with ID:', docRef.id);
+                
+                // Wait a moment
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Load from Firebase
+                console.log('Loading data with UUID:', uuid);
+                const q = query(collection(db, 'shared_bills'), where('id', '==', uuid));
+                const querySnapshot = await getDocs(q);
+                
+                console.log('Query snapshot size:', querySnapshot.size);
+                
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    const loadedData = doc.data();
+                    console.log('Loaded data:', loadedData);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Save & Load successful!<br>
+                            UUID: ${uuid}<br>
+                            Document ID: ${docRef.id}<br>
+                            Share URL: <a href="http://localhost:8000/?id=${uuid}" target="_blank">http://localhost:8000/?id=${uuid}</a><br>
+                            <pre>${JSON.stringify(loadedData, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ Failed to load saved data</div>';
+                }
+            } catch (error) {
+                console.error('Error in test:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        };
+        
+        window.listAllDocuments = async function() {
+            const resultDiv = document.getElementById('list-result');
+            try {
+                const { db, collection, getDocs } = window.InoBillFirebase;
+                
+                const querySnapshot = await getDocs(collection(db, 'shared_bills'));
+                console.log('Total documents:', querySnapshot.size);
+                
+                let html = `<div class="success">Found ${querySnapshot.size} documents:<br><br>`;
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    html += `
+                        <div style="margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 3px;">
+                            <strong>Document ID:</strong> ${doc.id}<br>
+                            <strong>UUID:</strong> ${data.id}<br>
+                            <strong>Created:</strong> ${new Date(data.created_at).toLocaleString()}<br>
+                            <strong>Expires:</strong> ${new Date(data.expires_at).toLocaleString()}<br>
+                            <strong>Share URL:</strong> <a href="http://localhost:8000/?id=${data.id}" target="_blank">http://localhost:8000/?id=${data.id}</a>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                console.error('Error listing documents:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        };
+        
+        window.loadSpecificUUID = async function() {
+            const resultDiv = document.getElementById('load-result');
+            const uuidInput = document.getElementById('uuid-input');
+            const uuid = uuidInput.value.trim();
+            
+            if (!uuid) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter a UUID</div>';
+                return;
+            }
+            
+            try {
+                const { db, collection, getDocs, query, where } = window.InoBillFirebase;
+                
+                console.log('Loading UUID:', uuid);
+                const q = query(collection(db, 'shared_bills'), where('id', '==', uuid));
+                const querySnapshot = await getDocs(q);
+                
+                console.log('Query snapshot size:', querySnapshot.size);
+                
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    const data = doc.data();
+                    console.log('Found data:', data);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ UUID found!<br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ UUID not found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading UUID:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        };
+        
+        window.testShareURL = async function() {
+            const resultDiv = document.getElementById('share-result');
+            const shareUrlInput = document.getElementById('share-url');
+            const shareUrl = shareUrlInput.value.trim();
+            
+            if (!shareUrl) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter a share URL</div>';
+                return;
+            }
+            
+            try {
+                const url = new URL(shareUrl);
+                const uuid = url.searchParams.get('id');
+                
+                if (!uuid) {
+                    resultDiv.innerHTML = '<div class="error">❌ No UUID found in URL</div>';
+                    return;
+                }
+                
+                resultDiv.innerHTML = `<div class="success">UUID extracted: ${uuid}<br>Now testing load...</div>`;
+                
+                // Test load
+                const { db, collection, getDocs, query, where } = window.InoBillFirebase;
+                const q = query(collection(db, 'shared_bills'), where('id', '==', uuid));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    const data = doc.data();
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Share URL works!<br>
+                            UUID: ${uuid}<br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ UUID not found in database</div>';
+                }
+            } catch (error) {
+                console.error('Error testing share URL:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        };
+    </script>
+</body>
+</html>

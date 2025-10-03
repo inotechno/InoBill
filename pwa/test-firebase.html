@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Firebase - InoBill</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Firebase Test - InoBill</h1>
+    
+    <div class="test-section">
+        <h3>1. Test Firebase Connection</h3>
+        <button onclick="testFirebaseConnection()">Test Connection</button>
+        <div id="connection-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Test Save Data</h3>
+        <button onclick="testSaveData()">Save Test Data</button>
+        <div id="save-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Test Load Data</h3>
+        <input type="text" id="uuid-input" placeholder="Enter UUID to load" style="padding: 5px; margin: 5px;">
+        <button onclick="testLoadData()">Load Data</button>
+        <div id="load-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. Test Full Sharing Flow</h3>
+        <button onclick="testFullFlow()">Test Complete Flow</button>
+        <div id="flow-result"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCU_kr0Ah5h7ESnv4pHZA0zGj2Tdhpovwo",
+            authDomain: "inobill.firebaseapp.com",
+            projectId: "inobill",
+            storageBucket: "inobill.firebasestorage.app",
+            messagingSenderId: "632461365007",
+            appId: "1:632461365007:web:05d9a9daa75a4150ff387a",
+            measurementId: "G-BK4Q09S58P"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.InoBillFirebase = {
+            db,
+            collection,
+            addDoc,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            limit
+        };
+        
+        console.log('Firebase initialized successfully');
+        
+        // Test functions
+        window.testFirebaseConnection = function() {
+            const resultDiv = document.getElementById('connection-result');
+            try {
+                if (window.InoBillFirebase && window.InoBillFirebase.db) {
+                    resultDiv.innerHTML = '<div class="success">✅ Firebase connected successfully!</div>';
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ Firebase not initialized</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        };
+        
+        window.testSaveData = async function() {
+            const resultDiv = document.getElementById('save-result');
+            try {
+                const { db, collection, addDoc } = window.InoBillFirebase;
+                
+                const testData = {
+                    id: 'test-uuid-' + Date.now(),
+                    data: {
+                        participants: ['Alice', 'Bob'],
+                        menuItems: [{ name: 'Nasi Goreng', price: 25000 }],
+                        orders: { 'Alice': [{ type: 'menu', index: 0, quantity: 1 }] },
+                        timestamp: new Date().toISOString(),
+                        expires_at: Date.now() + (7 * 24 * 60 * 60 * 1000)
+                    },
+                    created_at: Date.now(),
+                    expires_at: Date.now() + (7 * 24 * 60 * 60 * 1000)
+                };
+                
+                const docRef = await addDoc(collection(db, 'shared_bills'), testData);
+                resultDiv.innerHTML = `<div class="success">✅ Data saved successfully!<br>Document ID: ${docRef.id}<br>UUID: ${testData.id}</div>`;
+                
+                // Store UUID for testing
+                window.lastTestUUID = testData.id;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error saving data: ${error.message}</div>`;
+            }
+        };
+        
+        window.testLoadData = async function() {
+            const resultDiv = document.getElementById('load-result');
+            const uuidInput = document.getElementById('uuid-input');
+            const uuid = uuidInput.value || window.lastTestUUID;
+            
+            if (!uuid) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter a UUID or save test data first</div>';
+                return;
+            }
+            
+            try {
+                const { db, collection, getDocs, query, where } = window.InoBillFirebase;
+                
+                const q = query(collection(db, 'shared_bills'), where('id', '==', uuid));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    const data = doc.data();
+                    resultDiv.innerHTML = `<div class="success">✅ Data loaded successfully!<br><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ No data found for UUID: ' + uuid + '</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error loading data: ${error.message}</div>`;
+            }
+        };
+        
+        window.testFullFlow = async function() {
+            const resultDiv = document.getElementById('flow-result');
+            try {
+                // Generate UUID
+                const uuid = 'test-flow-' + Date.now();
+                
+                // Save data
+                const { db, collection, addDoc } = window.InoBillFirebase;
+                const testData = {
+                    id: uuid,
+                    data: {
+                        participants: ['Test User 1', 'Test User 2'],
+                        menuItems: [{ name: 'Test Menu', price: 10000 }],
+                        orders: { 'Test User 1': [{ type: 'menu', index: 0, quantity: 1 }] },
+                        timestamp: new Date().toISOString(),
+                        expires_at: Date.now() + (7 * 24 * 60 * 60 * 1000)
+                    },
+                    created_at: Date.now(),
+                    expires_at: Date.now() + (7 * 24 * 60 * 60 * 1000)
+                };
+                
+                await addDoc(collection(db, 'shared_bills'), testData);
+                
+                // Load data
+                const { getDocs, query, where } = window.InoBillFirebase;
+                const q = query(collection(db, 'shared_bills'), where('id', '==', uuid));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    const loadedData = doc.data();
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Full flow test successful!<br>
+                            UUID: ${uuid}<br>
+                            Share URL: <a href="http://localhost:8000/?id=${uuid}" target="_blank">http://localhost:8000/?id=${uuid}</a><br>
+                            <small>Click the link to test in main app</small>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ Failed to load saved data</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error in full flow test: ${error.message}</div>`;
+            }
+        };
+    </script>
+</body>
+</html>

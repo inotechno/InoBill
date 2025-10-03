@@ -1,4 +1,4 @@
-# InoBill PWA v1.1.0
+# InoBill PWA v1.2.0
 
 **Smart Bill Splitter - Fair & Easy**
 
@@ -22,10 +22,22 @@ A Progressive Web App (PWA) for fair and easy bill splitting. Perfect for restau
 - **Modern UI** - Clean, professional design with custom branding
 
 ### Sharing & Export
+- **🔥 Firebase Cloud Sharing** - Generate short UUID-based URLs for seamless sharing
+- **⚡ Instant Loading** - Share links load instantly across all devices
+- **🗑️ Auto-Expiration** - Data automatically expires after 7 days for privacy
+- **📱 Cross-Platform** - Works on any device with internet connection
 - **Print Bills** - Generate printer-friendly receipts
-- **Share Links** - Send shareable URLs for collaboration
 - **JSON Export** - Download data for backup or import
-- **URL Sharing** - Direct links with embedded data
+- **Image Sharing** - Generate and share bill as image
+
+## 🎯 Version 1.2.0 Highlights
+
+### 🔥 Major Update - Firebase Integration
+- **Cloud-Based Sharing** - No more server dependencies!
+- **Short URLs** - Clean UUID-based links instead of long base64 URLs
+- **Automatic Cleanup** - Data expires after 7 days automatically
+- **Better Performance** - Faster loading and sharing
+- **Modern Architecture** - Client-side only with cloud backend
 
 ## 🎯 Version 1.1.0 Highlights
 

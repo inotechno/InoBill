@@ -29,11 +29,11 @@ function formatCurrencyLegacy(amount) {
 }
 
 // Initialize Application
-function init() {
+async function init() {
     console.log('InoBill: Initializing...');
     
     // Try to load data from URL first
-    const urlDataLoaded = loadDataFromUrl();
+    const urlDataLoaded = await loadDataFromUrl();
     
     // If no URL data, load from localStorage
     if (!urlDataLoaded) {
@@ -2948,7 +2948,7 @@ function printBill() {
 }
 
 // Share Bill Function
-function shareBill() {
+async function shareBill() {
     if (participants.length === 0) {
         showError('Error', 'Belum ada peserta yang ditambahkan');
         return;
@@ -2959,27 +2959,32 @@ function shareBill() {
         return;
     }
 
-    // Generate shareable URL
-    const shareUrl = generateShareableLink();
-    
-    // Create share text
-    const shareText = `🍽️ InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
-    
-    if (navigator.share) {
-        // Use native share API if available
-        navigator.share({
-            title: 'InoBill - Split Bill Receipt',
-            text: shareText,
-            url: shareUrl
-        }).then(() => {
-            showNotification('Bill berhasil dibagikan!', 'success');
-        }).catch((error) => {
-            console.log('Error sharing:', error);
+    try {
+        // Generate shareable URL
+        const shareUrl = await generateShareableLink();
+        
+        // Create share text
+        const shareText = `🍽️ InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
+        
+        if (navigator.share) {
+            // Use native share API if available
+            navigator.share({
+                title: 'InoBill - Split Bill Receipt',
+                text: shareText,
+                url: shareUrl
+            }).then(() => {
+                showNotification('Bill berhasil dibagikan!', 'success');
+            }).catch((error) => {
+                console.log('Error sharing:', error);
+                fallbackShare(shareText);
+            });
+        } else {
+            // Fallback to copy to clipboard
             fallbackShare(shareText);
-        });
-    } else {
-        // Fallback to copy to clipboard
-        fallbackShare(shareText);
+        }
+    } catch (error) {
+        console.error('Error in shareBill:', error);
+        showError('Error', 'Gagal membagikan bill');
     }
 }
 
@@ -3072,25 +3077,30 @@ function shareAsLink() {
 }
 
 // Share as URL (existing method)
-function shareAsUrl() {
-    const shareUrl = generateShareableLink();
-    const shareText = `🍽️ InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
-    
-    if (navigator.share) {
-        // Use native share API if available
-        navigator.share({
-            title: 'InoBill - Split Bill Receipt',
-            text: shareText,
-            url: shareUrl
-        }).then(() => {
-            showNotification('Link bill berhasil dibagikan!', 'success');
-        }).catch((error) => {
-            console.log('Error sharing:', error);
+async function shareAsUrl() {
+    try {
+        const shareUrl = await generateShareableLink();
+        const shareText = `🍽️ InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
+        
+        if (navigator.share) {
+            // Use native share API if available
+            navigator.share({
+                title: 'InoBill - Split Bill Receipt',
+                text: shareText,
+                url: shareUrl
+            }).then(() => {
+                showNotification('Link bill berhasil dibagikan!', 'success');
+            }).catch((error) => {
+                console.log('Error sharing:', error);
+                fallbackShare(shareText, shareUrl);
+            });
+        } else {
+            // Fallback to copy to clipboard
             fallbackShare(shareText, shareUrl);
-        });
-    } else {
-        // Fallback to copy to clipboard
-        fallbackShare(shareText, shareUrl);
+        }
+    } catch (error) {
+        console.error('Error in shareAsUrl:', error);
+        showError('Error', 'Gagal membagikan link');
     }
 }
 
@@ -3213,6 +3223,176 @@ function downloadBill() {
 
     // Direct download as JSON
     shareAsJson();
+}
+
+// Share as Image Function
+async function shareAsImage() {
+    if (participants.length === 0) {
+        showError('Error', 'Belum ada peserta yang ditambahkan');
+        return;
+    }
+
+    if (!lastCalculationResults) {
+        showError('Error', 'Hitung tagihan terlebih dahulu');
+        return;
+    }
+
+    try {
+        // Show loading
+        showLoading('Generating Image...', 'Creating bill image for sharing');
+
+        // Create temporary container for image generation
+        const tempContainer = document.createElement('div');
+        tempContainer.id = 'temp-image-container';
+        tempContainer.style.cssText = `
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 800px;
+            background: white;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.4;
+        `;
+
+        // Generate the same content as print
+        const printContent = generateSimplePrintContent();
+        tempContainer.innerHTML = printContent;
+
+        // Add styles for image generation
+        const style = document.createElement('style');
+        style.textContent = `
+            #temp-image-container .header {
+                text-align: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #0174BE;
+            }
+            #temp-image-container .header h1 {
+                color: #0174BE;
+                margin: 0;
+                font-size: 24px;
+            }
+            #temp-image-container .header p {
+                color: #666;
+                margin: 5px 0 0 0;
+                font-size: 14px;
+            }
+            #temp-image-container .bill-info {
+                background: #f8fafc;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                border-left: 4px solid #0174BE;
+                font-size: 13px;
+            }
+            #temp-image-container .bill-info p {
+                margin: 3px 0;
+            }
+            #temp-image-container .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                font-size: 12px;
+            }
+            #temp-image-container .print-table th,
+            #temp-image-container .print-table td {
+                border: 1px solid #ddd;
+                padding: 8px 10px;
+                text-align: left;
+                vertical-align: top;
+            }
+            #temp-image-container .print-table th {
+                background-color: #0174BE;
+                color: white;
+                font-weight: 600;
+                text-align: center;
+                font-size: 12px;
+            }
+            #temp-image-container .print-table td {
+                background-color: white;
+            }
+            #temp-image-container .print-table tr:nth-child(even) td {
+                background-color: #f9f9f9;
+            }
+            #temp-image-container .print-table td:first-child {
+                font-weight: 500;
+                background-color: #f0f8ff;
+                text-align: right;
+                vertical-align: middle;
+            }
+            #temp-image-container .print-table td:nth-child(2),
+            #temp-image-container .print-table td:nth-child(3),
+            #temp-image-container .print-table td:nth-child(4),
+            #temp-image-container .print-table td:nth-child(5) {
+                text-align: right;
+            }
+            #temp-image-container .summary-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                font-size: 12px;
+            }
+            #temp-image-container .summary-table td {
+                border: 1px solid #ddd;
+                padding: 8px 10px;
+                text-align: left;
+            }
+            #temp-image-container .summary-table td:last-child {
+                text-align: right;
+                font-weight: 600;
+            }
+            #temp-image-container .footer {
+                text-align: center;
+                margin-top: 30px;
+                padding-top: 15px;
+                border-top: 1px solid #ddd;
+                color: #666;
+                font-size: 11px;
+            }
+        `;
+        tempContainer.appendChild(style);
+        document.body.appendChild(tempContainer);
+
+        // Generate image using html2canvas
+        const canvas = await html2canvas(tempContainer, {
+            width: 800,
+            height: tempContainer.scrollHeight,
+            scale: 2, // Higher quality
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            allowTaint: true
+        });
+
+        // Clean up temporary container
+        document.body.removeChild(tempContainer);
+
+        // Convert canvas to blob
+        const blob = await new Promise(resolve => {
+            canvas.toBlob(resolve, 'image/png', 0.95);
+        });
+
+        // Create filename with timestamp
+        const timestamp = new Date().toISOString().split('T')[0];
+        const filename = `inobill-receipt-${timestamp}.png`;
+
+        // Direct download the image
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('Bill image berhasil didownload!', 'success');
+
+    } catch (error) {
+        console.error('Error generating image:', error);
+        showError('Error', 'Gagal membuat gambar bill. Silakan coba lagi.');
+    }
 }
 
 // Generate Bill Content for Print/Share
@@ -3574,39 +3754,189 @@ function generateShareText() {
     return text;
 }
 
-// Generate Shareable Link
-function generateShareableLink() {
-    // Create data object for sharing
-    const shareData = {
-        participants: participants,
-        menuItems: menuItems,
-        additionalCosts: additionalCosts,
-        orders: orders,
-        discount: discount,
-        timestamp: new Date().toISOString()
+// Generate UUID for file naming
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+// Save data to Firebase
+async function saveToFirebase(data, uuid) {
+    const fileData = {
+        ...data,
+        expires_at: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+        created_at: Date.now()
     };
     
-    // Encode data to base64
-    const encodedData = btoa(JSON.stringify(shareData));
-    
-    // Create shareable URL
-    const baseUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${baseUrl}?bill=${encodedData}`;
-    
-    return shareUrl;
+    try {
+        // Check if Firebase is available
+        if (!window.InoBillFirebase) {
+            throw new Error('Firebase not initialized');
+        }
+        
+        const { db, collection, addDoc } = window.InoBillFirebase;
+        
+        // Save to Firebase (nested structure)
+        const docRef = await addDoc(collection(db, 'shared_bills'), {
+            id: uuid,
+            data: fileData,
+            created_at: fileData.created_at,
+            expires_at: fileData.expires_at
+        });
+        
+        console.log('Document written with ID: ', docRef.id);
+        
+        // Also store in localStorage as backup
+        localStorage.setItem(`inobill_shared_${uuid}`, JSON.stringify(fileData));
+        
+        return uuid;
+    } catch (error) {
+        console.log('Firebase save failed, using localStorage only:', error);
+        // Fallback to localStorage
+        localStorage.setItem(`inobill_shared_${uuid}`, JSON.stringify(fileData));
+        return uuid;
+    }
+}
+
+// Generate Shareable Link with JSON File Storage
+async function generateShareableLink() {
+    try {
+        // Generate UUID for file naming
+        const uuid = generateUUID();
+        
+        // Create data object for sharing
+        const shareData = {
+            participants: participants,
+            menuItems: menuItems,
+            additionalCosts: additionalCosts,
+            orders: orders,
+            discount: discount,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Save to Firebase
+        const savedUuid = await saveToFirebase(shareData, uuid);
+        
+        // Create shareable URL with UUID
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${baseUrl}?id=${uuid}`;
+        
+        return shareUrl;
+        
+    } catch (error) {
+        console.error('Error generating shareable link:', error);
+        
+        // Fallback: use compressed base64
+        const shareData = {
+            participants: participants,
+            menuItems: menuItems,
+            additionalCosts: additionalCosts,
+            orders: orders,
+            discount: discount,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Use better compression by removing unnecessary data
+        const compressedData = JSON.stringify(shareData)
+            .replace(/"type":"menu"/g, '"t":"m"')
+            .replace(/"quantity":/g, '"q":')
+            .replace(/"index":/g, '"i":')
+            .replace(/"amount":/g, '"a":')
+            .replace(/"percentage":/g, '"p":')
+            .replace(/"name":/g, '"n":')
+            .replace(/"price":/g, '"p":');
+        
+        const encodedData = btoa(compressedData);
+        const baseUrl = window.location.origin + window.location.pathname;
+        return `${baseUrl}?bill=${encodedData}`;
+    }
+}
+
+// Load data from Firebase
+async function loadFromFirebase(uuid) {
+    try {
+        // Check if Firebase is available
+        if (!window.InoBillFirebase) {
+            throw new Error('Firebase not initialized');
+        }
+        
+        const { db, collection, getDocs, query, where } = window.InoBillFirebase;
+        
+        // Query Firebase for the document with matching UUID
+        console.log('Loading from Firebase with UUID:', uuid);
+        const q = query(collection(db, 'shared_bills'), where('id', '==', uuid));
+        const querySnapshot = await getDocs(q);
+        
+        console.log('Query snapshot size:', querySnapshot.size);
+        
+        if (!querySnapshot.empty) {
+            const doc = querySnapshot.docs[0];
+            const data = doc.data();
+            
+            console.log('Found document:', data);
+            console.log('Current time:', Date.now());
+            console.log('Expires at:', data.expires_at);
+            
+            // Check if document has expired
+            if (data.expires_at && Date.now() > data.expires_at) {
+                console.log('Document has expired');
+                throw new Error('Document has expired');
+            }
+            
+            // Check if data has nested structure or is flat
+            if (data.data) {
+                console.log('Returning nested data:', data.data);
+                return data.data;
+            } else {
+                // Remove metadata fields and return only bill data
+                const { id, created_at, expires_at, ...billData } = data;
+                console.log('Returning flat data:', billData);
+                return billData;
+            }
+        } else {
+            // Try localStorage fallback
+            const localData = localStorage.getItem(`inobill_shared_${uuid}`);
+            if (localData) {
+                const data = JSON.parse(localData);
+                
+                // Check if file has expired
+                if (data.expires_at && Date.now() > data.expires_at) {
+                    localStorage.removeItem(`inobill_shared_${uuid}`);
+                    throw new Error('File has expired');
+                }
+                
+                return data;
+            }
+            throw new Error('Document not found');
+        }
+    } catch (error) {
+        console.error('Error loading from Firebase:', error);
+        throw error;
+    }
 }
 
 // Load Data from URL
-function loadDataFromUrl() {
+async function loadDataFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
+    const uuid = urlParams.get('id');
     const billData = urlParams.get('bill');
     
-    if (billData) {
+    // Try to load from UUID JSON file first
+    if (uuid) {
         try {
-            // Decode data from base64
-            const decodedData = JSON.parse(atob(billData));
+            console.log('Loading data from URL with UUID:', uuid);
+            const decodedData = await loadFromFirebase(uuid);
+            console.log('Decoded data from Firebase:', decodedData);
             
             // Validate data structure
+            console.log('Validating data structure...');
+            console.log('Has participants:', !!decodedData.participants);
+            console.log('Has menuItems:', !!decodedData.menuItems);
+            console.log('Has orders:', !!decodedData.orders);
+            
             if (decodedData.participants && decodedData.menuItems && decodedData.orders) {
                 // Load the data
                 participants = decodedData.participants || [];
@@ -3614,6 +3944,60 @@ function loadDataFromUrl() {
                 additionalCosts = decodedData.additionalCosts || [];
                 orders = decodedData.orders || {};
                 discount = decodedData.discount || { amount: 0, percentage: 0, type: 'menu' };
+                
+                // Save to localStorage
+                saveData();
+                
+                // Re-render everything
+                renderAll();
+                
+                // Show notification
+                showNotification('Data bill berhasil dimuat dari link!', 'success');
+                
+                // Clear URL parameters to avoid reloading
+                const newUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+                
+                return true;
+            } else {
+                console.error('Invalid data structure in JSON file');
+                console.error('Decoded data:', decodedData);
+                showError('Error', 'Data dari file tidak valid');
+            }
+        } catch (error) {
+            console.error('Error loading data from JSON file:', error);
+            console.error('Error details:', error.message);
+            if (error.message === 'Document has expired') {
+                showError('Error', 'Data sudah expired (lebih dari 7 hari)');
+            } else if (error.message === 'Document not found') {
+                showError('Error', 'Data tidak ditemukan');
+            } else {
+                showError('Error', 'Gagal memuat data dari Firebase: ' + error.message);
+            }
+        }
+    }
+    
+    // Fallback to base64 method
+    if (billData) {
+        try {
+            // Decode data from base64
+            const decodedData = JSON.parse(atob(billData));
+            
+            // Handle both old and new data formats
+            const participantsData = decodedData.participants || decodedData.p;
+            const menuItemsData = decodedData.menuItems || decodedData.m;
+            const additionalCostsData = decodedData.additionalCosts || decodedData.a;
+            const ordersData = decodedData.orders || decodedData.o;
+            const discountData = decodedData.discount || decodedData.d;
+            
+            // Validate data structure
+            if (participantsData && menuItemsData && ordersData) {
+                // Load the data
+                participants = participantsData || [];
+                menuItems = menuItemsData || [];
+                additionalCosts = additionalCostsData || [];
+                orders = ordersData || {};
+                discount = discountData || { amount: 0, percentage: 0, type: 'menu' };
                 
                 // Save to localStorage
                 saveData();
@@ -3656,6 +4040,51 @@ function generateSimplePrintContent() {
         minute: '2-digit'
     });
     
+    // Calculate factor for discounted prices
+    let totalSubtotal = 0;
+    let totalAdditionalCosts = 0;
+    let totalDiscount = 0;
+    
+    // Calculate total subtotal from all participants
+    participants.forEach(participant => {
+        const participantOrders = orders[participant] || [];
+        if (Array.isArray(participantOrders) && participantOrders.length > 0) {
+            participantOrders.forEach((order) => {
+                if (order && order.type === 'menu' && typeof order.index === 'number' && order.quantity > 0) {
+                    const menuItem = menuItems[order.index];
+                    if (menuItem) {
+                        totalSubtotal += menuItem.price * order.quantity;
+                    }
+                }
+            });
+        }
+    });
+    
+    // Calculate total additional costs
+    additionalCosts.forEach(cost => {
+        if (cost.type === 'fixed') {
+            totalAdditionalCosts += cost.amount || 0;
+        } else if (cost.type === 'percentage') {
+            totalAdditionalCosts += (totalSubtotal * (cost.amount || 0)) / 100;
+        }
+    });
+    
+    // Calculate total discount
+    if (discount && (discount.amount > 0 || discount.percentage > 0)) {
+        if (discount.amount > 0) {
+            totalDiscount = discount.amount;
+        } else if (discount.percentage > 0) {
+            if (discount.type === 'menu') {
+                totalDiscount = totalSubtotal * discount.percentage / 100;
+            } else {
+                totalDiscount = (totalSubtotal + totalAdditionalCosts) * discount.percentage / 100;
+            }
+        }
+    }
+    
+    // Calculate factor for discounted prices
+    const factor = totalSubtotal > 0 ? (totalSubtotal + totalAdditionalCosts - totalDiscount) / totalSubtotal : 1;
+    
     let content = `
         <div class="header">
             <h1>🍽️ InoBill</h1>
@@ -3685,6 +4114,7 @@ function generateSimplePrintContent() {
     console.log('Print Debug - Participants:', participants);
     console.log('Print Debug - MenuItems:', menuItems);
     console.log('Print Debug - Orders:', orders);
+    console.log('Print Debug - Factor:', factor);
     
     // Add participant orders in table format
     participants.forEach(participant => {
@@ -3700,12 +4130,14 @@ function generateSimplePrintContent() {
                     const menuItem = menuItems[order.index];
                     if (menuItem) {
                         const itemTotal = menuItem.price * order.quantity;
-                        participantSubtotal += itemTotal;
+                        const discountedPrice = menuItem.price * factor;
+                        const discountedTotal = discountedPrice * order.quantity;
+                        participantSubtotal += discountedTotal;
                         orderItems.push({
                             name: menuItem.name,
                             quantity: order.quantity,
-                            price: menuItem.price,
-                            total: itemTotal
+                            price: discountedPrice,
+                            total: discountedTotal
                         });
                         hasOrders = true;
                     }
@@ -3757,27 +4189,7 @@ function generateSimplePrintContent() {
             <tbody>
     `;
     
-    // Calculate totals
-    let totalSubtotal = 0;
-    let totalAdditionalCosts = 0;
-    let totalDiscount = 0;
-    
-    // Calculate total subtotal from all participants
-    participants.forEach(participant => {
-        const participantOrders = orders[participant] || [];
-        if (Array.isArray(participantOrders) && participantOrders.length > 0) {
-            participantOrders.forEach((order) => {
-                if (order && order.type === 'menu' && typeof order.index === 'number' && order.quantity > 0) {
-                    const menuItem = menuItems[order.index];
-                    if (menuItem) {
-                        totalSubtotal += menuItem.price * order.quantity;
-                    }
-                }
-            });
-        }
-    });
-    
-    // Add subtotal row
+    // Add subtotal row (original food cost)
     content += `
         <tr>
             <td><strong>Sub Total</strong></td>
@@ -3794,7 +4206,6 @@ function generateSimplePrintContent() {
             } else if (cost.type === 'percentage') {
                 costValue = (totalSubtotal * (cost.amount || 0)) / 100;
             }
-            totalAdditionalCosts += costValue;
             
             content += `
                 <tr>
@@ -3808,7 +4219,6 @@ function generateSimplePrintContent() {
     // Add discount
     if (discount && (discount.amount > 0 || discount.percentage > 0)) {
         if (discount.amount > 0) {
-            totalDiscount = discount.amount;
             content += `
                 <tr>
                     <td><strong>Diskon (${discount.type === 'menu' ? 'Setelah Menu' : 'Dari Total Semua'})</strong></td>
@@ -3816,11 +4226,6 @@ function generateSimplePrintContent() {
                 </tr>
             `;
         } else if (discount.percentage > 0) {
-            if (discount.type === 'menu') {
-                totalDiscount = (totalSubtotal * discount.percentage) / 100;
-            } else {
-                totalDiscount = ((totalSubtotal + totalAdditionalCosts) * discount.percentage) / 100;
-            }
             content += `
                 <tr>
                     <td><strong>Diskon ${discount.percentage}% (${discount.type === 'menu' ? 'Setelah Menu' : 'Dari Total Semua'})</strong></td>
@@ -3847,7 +4252,7 @@ function generateSimplePrintContent() {
         
         <div class="footer">
             <p>Dibuat dengan InoBill PWA oleh InoTechno</p>
-            <p>www.inotechno.com</p>
+            <p>inotechno.my.id</p>
         </div>
     `;
     

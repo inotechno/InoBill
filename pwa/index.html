@@ -125,16 +125,16 @@
         "inLanguage": "id",
         "isAccessibleForFree": true,
         "datePublished": "2024-01-01",
-        "dateModified": "2024-12-25",
-        "version": "1.1.0",
-        "softwareVersion": "1.1.0",
+        "dateModified": "2025-01-03",
+        "version": "1.2.0",
+        "softwareVersion": "1.2.0",
         "browserRequirements": "Requires JavaScript. Requires HTML5. PWA compatible.",
         "memoryRequirements": "No specific memory requirements",
         "storageRequirements": "Minimal storage for offline cache",
         "permissions": "No special permissions required",
         "screenshot": "https://inobill.inotechno.my.id/pwa/screenshots/Macbook-Air-localhost.png",
         "softwareHelp": "https://inobill.inotechno.my.id/pwa/help",
-        "releaseNotes": "Version 1.1.0 - Enhanced UI with custom logo, improved header design, card collapse functionality, and better mobile responsiveness"
+        "releaseNotes": "Version 1.2.0 - Major update with Firebase Firestore integration for seamless bill sharing. Generate short UUID-based URLs, automatic data expiration, and cloud-based storage. No more PHP or server dependencies!"
     }
     </script>
     
@@ -391,6 +391,10 @@
                                 <span>📤</span>
                                 <span>Share</span>
                             </button>
+                            <button onclick="shareAsImage()" class="btn-action">
+                                <span>🖼️</span>
+                                <span>Share as Image</span>
+                            </button>
                             <button onclick="downloadBill()" class="btn-action">
                                 <span>📄</span>
                                 <span>Download JSON</span>
@@ -532,8 +536,49 @@
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+    <!-- html2canvas for image generation -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCU_kr0Ah5h7ESnv4pHZA0zGj2Tdhpovwo",
+            authDomain: "inobill.firebaseapp.com",
+            projectId: "inobill",
+            storageBucket: "inobill.firebasestorage.app",
+            messagingSenderId: "632461365007",
+            appId: "1:632461365007:web:05d9a9daa75a4150ff387a",
+            measurementId: "G-BK4Q09S58P"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.InoBillFirebase = {
+            db,
+            collection,
+            addDoc,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            limit
+        };
+        
+        console.log('Firebase initialized successfully');
+    </script>
+    
     <!-- Main scripts -->
-    <script src="script.min.js"></script>
+    <script src="script.js"></script>
     <script src="pwa.min.js"></script>
 </body>
 </html>
