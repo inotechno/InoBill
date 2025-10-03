@@ -28,9 +28,48 @@ function formatCurrencyLegacy(amount) {
     return formatCurrency(amount);
 }
 
+// Wait for Firebase to be initialized
+function waitForFirebase() {
+    return new Promise((resolve) => {
+        // Check if Firebase is already ready
+        if (window.InoBillFirebase && window.InoBillFirebase.db) {
+            console.log('✅ Firebase is already ready');
+            resolve();
+            return;
+        }
+        
+        // Listen for Firebase ready event
+        const handleFirebaseReady = () => {
+            console.log('✅ Firebase ready event received');
+            window.removeEventListener('firebaseReady', handleFirebaseReady);
+            resolve();
+        };
+        
+        window.addEventListener('firebaseReady', handleFirebaseReady);
+        
+        // Fallback: check periodically
+        const checkFirebase = () => {
+            if (window.InoBillFirebase && window.InoBillFirebase.db) {
+                console.log('✅ Firebase is ready (fallback check)');
+                window.removeEventListener('firebaseReady', handleFirebaseReady);
+                resolve();
+            } else {
+                console.log('⏳ Waiting for Firebase...');
+                setTimeout(checkFirebase, 100);
+            }
+        };
+        
+        // Start fallback check after 1 second
+        setTimeout(checkFirebase, 1000);
+    });
+}
+
 // Initialize Application
 async function init() {
     console.log('InoBill: Initializing...');
+    
+    // Wait for Firebase to be ready before loading URL data
+    await waitForFirebase();
     
     // Try to load data from URL first
     const urlDataLoaded = await loadDataFromUrl();
@@ -3774,7 +3813,8 @@ async function saveToFirebase(data, uuid) {
     try {
         // Check if Firebase is available
         if (!window.InoBillFirebase) {
-            throw new Error('Firebase not initialized');
+            console.log('⏳ Firebase not ready yet, waiting...');
+            await waitForFirebase();
         }
         
         const { db, collection, addDoc } = window.InoBillFirebase;
@@ -3860,7 +3900,8 @@ async function loadFromFirebase(uuid) {
     try {
         // Check if Firebase is available
         if (!window.InoBillFirebase) {
-            throw new Error('Firebase not initialized');
+            console.log('⏳ Firebase not ready yet, waiting...');
+            await waitForFirebase();
         }
         
         const { db, collection, getDocs, query, where } = window.InoBillFirebase;

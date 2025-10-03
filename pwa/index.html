@@ -601,6 +601,9 @@
                 // Make config manager available globally
                 window.InoBillConfigManager = configManager;
                 
+                // Dispatch custom event to signal Firebase is ready
+                window.dispatchEvent(new CustomEvent('firebaseReady'));
+                
             } catch (error) {
                 console.error('❌ Failed to initialize Firebase:', error);
                 console.log('🔄 Falling back to localStorage-only mode');
