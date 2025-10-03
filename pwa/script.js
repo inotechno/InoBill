@@ -2415,7 +2415,10 @@ function generateCompactBillContent() {
     if (!lastCalculationResults) {
         return `
             <div class="header">
-                <h1>🍽️ InoBill</h1>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <img src="icons/logo.png" alt="InoBill Logo" style="width: 40px; height: 40px;">
+                <h1 style="margin: 0; color: #1e293b;">InoBill</h1>
+            </div>
                 <p>Split Bill Calculator - Dibuat oleh InoTechno</p>
             </div>
             <div class="bill-info">
@@ -2444,7 +2447,10 @@ function generateCompactBillContent() {
     
     let content = `
         <div class="header">
-            <h1>🍽️ InoBill</h1>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <img src="icons/logo.png" alt="InoBill Logo" style="width: 40px; height: 40px;">
+                <h1 style="margin: 0; color: #1e293b;">InoBill</h1>
+            </div>
             <p>Split Bill Calculator - Dibuat oleh InoTechno</p>
         </div>
         
@@ -3003,7 +3009,7 @@ async function shareBill() {
         const shareUrl = await generateShareableLink();
         
         // Create share text
-        const shareText = `🍽️ InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
+        const shareText = `InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
         
         if (navigator.share) {
             // Use native share API if available
@@ -3052,7 +3058,7 @@ function shareAsText() {
 function shareAsLink() {
     // Show options for link sharing
     Swal.fire({
-        title: '🔗 Bagikan sebagai Link',
+        title: 'Bagikan sebagai Link',
         html: `
             <div style="text-align: left; margin: 20px 0;">
                 <p style="margin-bottom: 15px; font-size: 16px; color: #374151;">
@@ -3069,7 +3075,7 @@ function shareAsLink() {
                         font-weight: 500;
                         text-align: left;
                     ">
-                        🌐 Bagikan sebagai URL
+                        Bagikan sebagai URL
                     </button>
                     <button id="share-json-btn" class="share-option-btn" style="
                         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -3081,7 +3087,7 @@ function shareAsLink() {
                         font-weight: 500;
                         text-align: left;
                     ">
-                        📄 Bagikan sebagai JSON File
+                        Bagikan sebagai JSON File
                     </button>
                 </div>
             </div>
@@ -3119,7 +3125,7 @@ function shareAsLink() {
 async function shareAsUrl() {
     try {
         const shareUrl = await generateShareableLink();
-        const shareText = `🍽️ InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
+        const shareText = `InoBill - Split Bill Receipt\n\nLihat detail lengkap di: ${shareUrl}`;
         
         if (navigator.share) {
             // Use native share API if available
@@ -3450,7 +3456,10 @@ function generateBillContent() {
     
     let content = `
         <div class="header">
-            <h1>🍽️ InoBill</h1>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <img src="icons/logo.png" alt="InoBill Logo" style="width: 40px; height: 40px;">
+                <h1 style="margin: 0; color: #1e293b;">InoBill</h1>
+            </div>
             <p>Split Bill Calculator - Dibuat oleh InoTechno</p>
         </div>
         
@@ -3552,7 +3561,10 @@ function generateCompactBillContent() {
     
     let content = `
         <div class="header">
-            <h1>🍽️ InoBill</h1>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <img src="icons/logo.png" alt="InoBill Logo" style="width: 40px; height: 40px;">
+                <h1 style="margin: 0; color: #1e293b;">InoBill</h1>
+            </div>
             <p>Split Bill Calculator - InoTechno</p>
         </div>
         
@@ -4128,7 +4140,10 @@ function generateSimplePrintContent() {
     
     let content = `
         <div class="header">
-            <h1>🍽️ InoBill</h1>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <img src="icons/logo.png" alt="InoBill Logo" style="width: 40px; height: 40px;">
+                <h1 style="margin: 0; color: #1e293b;">InoBill</h1>
+            </div>
             <p>Smart Bill Splitter</p>
         </div>
         
