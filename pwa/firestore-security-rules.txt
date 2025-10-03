@@ -1,0 +1,49 @@
+# Firestore Security Rules untuk InoBill
+# Copy rules ini ke Firebase Console > Firestore > Rules
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Collection untuk shared bills
+    match /shared_bills/{documentId} {
+      // Allow read untuk semua (karena ini public sharing)
+      allow read: if true;
+      
+      // Allow write hanya untuk create (tidak bisa update/delete)
+      allow create: if 
+        // Validasi data structure
+        resource.data.keys().hasAll(['id', 'data', 'created_at', 'expires_at']) &&
+        resource.data.id is string &&
+        resource.data.id.size() > 0 &&
+        resource.data.data is map &&
+        resource.data.created_at is number &&
+        resource.data.expires_at is number &&
+        // Validasi ukuran data (max 100KB)
+        resource.data.size() < 100000 &&
+        // Validasi expiration (max 7 hari)
+        (resource.data.expires_at - resource.data.created_at) <= (7 * 24 * 60 * 60 * 1000);
+      
+      // Tidak allow update atau delete
+      allow update, delete: if false;
+    }
+    
+    // Collection untuk analytics (optional)
+    match /analytics/{documentId} {
+      allow read, write: if false; // Disable untuk sekarang
+    }
+    
+    // Block semua collection lainnya
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+# Tips Keamanan:
+# 1. Data otomatis expire setelah 7 hari
+# 2. Tidak bisa update/delete data yang sudah tersimpan
+# 3. Validasi struktur data yang ketat
+# 4. Limit ukuran data untuk mencegah abuse
+# 5. Hanya allow create, tidak allow update/delete

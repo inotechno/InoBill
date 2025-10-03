@@ -539,6 +539,9 @@
     <!-- html2canvas for image generation -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     
+    <!-- Configuration Management -->
+    <script src="config.js"></script>
+    
     <!-- Firebase SDK -->
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -546,35 +549,56 @@
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCU_kr0Ah5h7ESnv4pHZA0zGj2Tdhpovwo",
-            authDomain: "inobill.firebaseapp.com",
-            projectId: "inobill",
-            storageBucket: "inobill.firebasestorage.app",
-            messagingSenderId: "632461365007",
-            appId: "1:632461365007:web:05d9a9daa75a4150ff387a",
-            measurementId: "G-BK4Q09S58P"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
+        // Initialize configuration
+        const configManager = new window.InoBillConfig();
         
-        // Make Firebase available globally
-        window.InoBillFirebase = {
-            db,
-            collection,
-            addDoc,
-            getDocs,
-            query,
-            where,
-            orderBy,
-            limit
-        };
+        // Load config and initialize Firebase
+        async function initializeFirebase() {
+            try {
+                // Load configuration
+                const config = await configManager.loadConfig();
+                
+                // Show warning if using placeholder
+                configManager.showPlaceholderWarning();
+                
+                // Get Firebase config
+                const firebaseConfig = configManager.getFirebaseConfig();
+                
+                // Initialize Firebase
+                const app = initializeApp(firebaseConfig);
+                const analytics = getAnalytics(app);
+                const db = getFirestore(app);
+                
+                // Make Firebase available globally
+                window.InoBillFirebase = {
+                    db,
+                    collection,
+                    addDoc,
+                    getDocs,
+                    query,
+                    where,
+                    orderBy,
+                    limit,
+                    config: firebaseConfig
+                };
+                
+                console.log('✅ Firebase initialized successfully');
+                
+                // Make config manager available globally
+                window.InoBillConfigManager = configManager;
+                
+            } catch (error) {
+                console.error('❌ Failed to initialize Firebase:', error);
+                console.log('🔄 Falling back to localStorage-only mode');
+            }
+        }
         
-        console.log('Firebase initialized successfully');
+        // Initialize Firebase when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeFirebase);
+        } else {
+            initializeFirebase();
+        }
     </script>
     
     <!-- Main scripts -->
