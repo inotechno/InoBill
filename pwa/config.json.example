@@ -11,6 +11,12 @@
   "app": {
     "name": "InoBill",
     "version": "1.2.0",
-    "debug": false
+    "debug": false,
+    "environment": "production"
+  },
+  "analytics": {
+    "enabled": true,
+    "measurementId": "G-T6YX59TXRV",
+    "domain": "inobill.inotechno.my.id"
   }
 }

@@ -39,6 +39,10 @@ class InoBillConfig {
      * Get default configuration
      */
     getDefaultConfig() {
+        // Detect environment based on hostname
+        const isProduction = window.location.hostname === 'inobill.inotechno.my.id';
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
         return {
             firebase: {
                 apiKey: "YOUR_FIREBASE_API_KEY_HERE",
@@ -47,12 +51,18 @@ class InoBillConfig {
                 storageBucket: "inobill.firebasestorage.app",
                 messagingSenderId: "632461365007",
                 appId: "1:632461365007:web:f55b9228d0c82c3fff387a",
-                measurementId: "G-T6YX59TXRV"
+                measurementId: isProduction ? "G-T6YX59TXRV" : "G-BK4Q09S58P"
             },
             app: {
                 name: "InoBill",
                 version: "1.2.0",
-                debug: false
+                debug: !isProduction,
+                environment: isProduction ? 'production' : 'development'
+            },
+            analytics: {
+                enabled: isProduction,
+                measurementId: isProduction ? "G-T6YX59TXRV" : "G-BK4Q09S58P",
+                domain: isProduction ? "inobill.inotechno.my.id" : "localhost"
             }
         };
     }

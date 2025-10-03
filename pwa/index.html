@@ -563,11 +563,24 @@
                 
                 // Get Firebase config
                 const firebaseConfig = configManager.getFirebaseConfig();
+                const appConfig = configManager.getAppConfig();
                 
                 // Initialize Firebase
                 const app = initializeApp(firebaseConfig);
-                const analytics = getAnalytics(app);
                 const db = getFirestore(app);
+                
+                // Initialize Analytics only if enabled
+                let analytics = null;
+                if (appConfig.analytics && appConfig.analytics.enabled) {
+                    try {
+                        analytics = getAnalytics(app);
+                        console.log('✅ Google Analytics initialized for', appConfig.analytics.domain);
+                    } catch (analyticsError) {
+                        console.warn('⚠️ Google Analytics initialization failed:', analyticsError);
+                    }
+                } else {
+                    console.log('ℹ️ Google Analytics disabled for', window.location.hostname);
+                }
                 
                 // Make Firebase available globally
                 window.InoBillFirebase = {
@@ -579,7 +592,8 @@
                     where,
                     orderBy,
                     limit,
-                    config: firebaseConfig
+                    config: firebaseConfig,
+                    analytics: analytics
                 };
                 
                 console.log('✅ Firebase initialized successfully');

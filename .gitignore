@@ -5,6 +5,8 @@
 
 # Firebase config with sensitive data
 config.json
+config.production.json
+
 
 # Logs
 *.log
